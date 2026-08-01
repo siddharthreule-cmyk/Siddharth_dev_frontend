@@ -1622,7 +1622,7 @@
     </div>
   </footer>
 
-  <script>
+  <script type="module">
     const apiBase = 'https://siddharth-dev-backend.onrender.com';
     const currentUserKey = 'swapify-current-user';
     const searchInput = document.getElementById('searchInput');
@@ -1758,9 +1758,9 @@
   }
 }
 
-      const contentType = response.headers.get('content-type') || '';
-      const isJson = contentType.includes('application/json');
-      const rawBody = await response.text();
+    const contentType = response.headers.get('content-type') || '';
+    const isJson = contentType.includes('application/json');
+    const rawBody = await response.text();
       let parsedBody = null;
       if (isJson && rawBody) {
         try {
