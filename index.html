@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Swapify</title>
+  <script>
+// At the top of your frontend script (e.g., in index.html)
+
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:4000'
+  : 'https://siddharth-dev-backend.onrender.com'; // Replace with your actual Render backend URL
+  </script>
   <style>
     :root {
       --bg: #050a18;
