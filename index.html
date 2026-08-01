@@ -2868,7 +2868,7 @@
       await loadItems(searchInput?.value || '');
     }
 
-    function openSwapify() {
+    async function openSwapify() {
       splash.classList.add('hidden-page');
       headerEl.classList.remove('hidden-page');
       mainEl.classList.remove('hidden-page');
@@ -2878,15 +2878,16 @@
           openAuthModal();
         }
         updateAuthUI();
+        await loadItems(searchInput?.value || '');
       } catch (error) {
         console.error('Error while opening Swapify:', error);
       }
     }
 
-    function enterSwapifyApp() {
+    async function enterSwapifyApp() {
       const onAppShell = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
       if (onAppShell) {
-        openSwapify();
+        await openSwapify();
         return;
       }
 
