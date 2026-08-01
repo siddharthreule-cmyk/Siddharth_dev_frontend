@@ -1287,7 +1287,7 @@
 <body>
   <section id="splash">
     <div class="splash-card">
-      <button class="splash-logo" id="splashLogo" aria-label="Open Swapify">
+      <button type="button" class="splash-logo" id="splashLogo" aria-label="Open Swapify">
         <img src="Swapify Logo 1.png" alt="Swapify Website logo" />
       </button>
       <div class="splash-title">Swapify</div>
@@ -2883,6 +2883,16 @@
       }
     }
 
+    function enterSwapifyApp() {
+      const onAppShell = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
+      if (onAppShell) {
+        openSwapify();
+        return;
+      }
+
+      window.location.assign('./index.html');
+    }
+
     document.querySelectorAll('.nav-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const url = btn.dataset.url;
@@ -2910,7 +2920,7 @@
 
     document.getElementById('switchToLogin')?.addEventListener('click', () => showAuthForm('login'));
     document.getElementById('switchToSignup')?.addEventListener('click', () => showAuthForm('signup'));
-    splashLogo?.addEventListener('click', openSwapify);
+    splashLogo?.addEventListener('click', enterSwapifyApp);
 
     function applyLanguage(lang) {
       const selected = translations[lang] ? lang : 'en';
