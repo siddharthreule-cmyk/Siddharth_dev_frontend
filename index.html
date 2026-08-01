@@ -1729,61 +1729,51 @@
     const ADMIN_PASSWORD = '12367';
 
     async function apiFetch(path, options = {}) {
-  let response;
-  try {
-    // 1. Automatically prepend '/api' if missing from the path
-    const formattedPath = path.startsWith('/api') ? path : `/api${path}`;
+      let response;
+      try {
+        const formattedPath = path.startsWith('/api') ? path : `/api${path}`;
+        const cleanBase = (typeof apiBase !== 'undefined' ? apiBase : '').replace(/\/+$/, '');
 
-    // 2. Safely format apiBase (removes trailing slashes if any)
-    const cleanBase = (typeof apiBase !== 'undefined' ? apiBase : '').replace(/\/+$/, '');
+        response = await fetch(`${cleanBase}${formattedPath}`, {
+          method: options.method || 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(options.headers || {})
+          },
+          ...options
+        });
 
-    response = await fetch(`${cleanBase}${formattedPath}`, {
-      method: options.method || 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(options.headers || {})
-      },
-      ...options
-    });
+        const contentType = response.headers.get('content-type') || '';
+        const isJson = contentType.includes('application/json');
+        const rawBody = await response.text();
+        let parsedBody = null;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`(${response.status}) ${errorText}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('API Error:', error);
-    throw error;
-  }
-}
-
-    const contentType = response.headers.get('content-type') || '';
-    const isJson = contentType.includes('application/json');
-    const rawBody = await response.text();
-      let parsedBody = null;
-      if (isJson && rawBody) {
-        try {
-          parsedBody = JSON.parse(rawBody);
-        } catch (parseError) {
-          console.error(`Response from ${path} claimed to be JSON but failed to parse:`, rawBody.slice(0, 300));
+        if (isJson && rawBody) {
+          try {
+            parsedBody = JSON.parse(rawBody);
+          } catch (parseError) {
+            console.error(`Response from ${path} claimed to be JSON but failed to parse:`, rawBody.slice(0, 300));
+          }
         }
-      }
 
-      if (!response.ok) {
-        const message = (parsedBody && (parsedBody.error || parsedBody.message)) || (rawBody && rawBody.slice(0, 300)) || response.statusText || `Request failed with status ${response.status}`;
-        throw new Error(`(${response.status}) ${message}`);
-      }
+        if (!response.ok) {
+          const message = (parsedBody && (parsedBody.error || parsedBody.message)) || (rawBody && rawBody.slice(0, 300)) || response.statusText || `Request failed with status ${response.status}`;
+          throw new Error(`(${response.status}) ${message}`);
+        }
 
-      if (!isJson || parsedBody === null) {
-        console.error(`Expected JSON from ${path} but got content-type "${contentType}". Response started with:`, rawBody.slice(0, 300));
-        throw new Error(
-          `The server did not return JSON for "${path}" (got "${contentType || 'unknown content type'}" instead). This usually means that route is not implemented on the backend, or the backend is serving the frontend page instead of an API response for this request.`
-        );
-      }
+        if (!isJson || parsedBody === null) {
+          console.error(`Expected JSON from ${path} but got content-type "${contentType}". Response started with:`, rawBody.slice(0, 300));
+          throw new Error(
+            `The server did not return JSON for "${path}" (got "${contentType || 'unknown content type'}" instead). This usually means that route is not implemented on the backend, or the backend is serving the frontend page instead of an API response for this request.`
+          );
+        }
 
-      return parsedBody;
-    
+        return parsedBody;
+      } catch (error) {
+        console.error('API Error:', error);
+        throw error;
+      }
+    }
 
     async function getItems() {
       return apiFetch('/items');
