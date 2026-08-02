@@ -1414,16 +1414,24 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
 
 </head>
 <body>
-  <section id="splash">
-    <div class="splash-card">
-      <button type="button" class="splash-logo" id="splashLogo" aria-label="Open Swapify">
-        <img src="Swapify Logo 1.png" alt="Swapify Website logo" />
-      </button>
-      <div class="splash-title">Swapify</div>
-      <div class="splash-subtitle">Tap the glowing logo to enter the Swapify barter page and start posting, trading, and rating securely.</div>
-    </div>
-  </section>
-
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+  const splashLogo = document.getElementById('splashLogo');
+  
+  if (splashLogo) {
+    splashLogo.addEventListener('click', () => {
+      // If you already have your openSwapify() function, call it directly!
+      if (typeof openSwapify === 'function') {
+        openSwapify();
+      } else {
+        // Fallback: hide splash and show main app
+        const splash = document.getElementById('splash');
+        if (splash) splash.classList.add('hidden-page');
+      }
+    });
+  }
+});
+  </script>
   <div id="authModal" class="auth-modal hidden-page" aria-hidden="true">
     <div class="auth-card">
       <div class="auth-header">
