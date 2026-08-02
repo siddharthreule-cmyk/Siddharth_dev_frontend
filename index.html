@@ -1416,13 +1416,14 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
 <body>
   <section id="splash">
     <div class="splash-card">
-      <button type="button" class="splash-logo" id="splashLogo" aria-label="Open Swapify">
+      <button type="button" class="splash-logo" id="splashLogo" aria-label="Open Swapify" onclick="document.getElementById('splash').style.display='none'; document.getElementById('main').classList.remove('hidden-page');">
         <img src="Swapify Logo 1.png" alt="Swapify Website logo" />
       </button>
       <div class="splash-title">Swapify</div>
       <div class="splash-subtitle">Tap the glowing logo to enter the Swapify barter page and start posting, trading, and rating securely.</div>
     </div>
-  </section>
+</section>
+
   
   <div id="authModal" class="auth-modal hidden-page" aria-hidden="true">
     <div class="auth-card">
