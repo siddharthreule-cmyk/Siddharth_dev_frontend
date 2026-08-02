@@ -1630,7 +1630,9 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
   </footer>
 
   <script type="module">
-    const apiBase = 'https://siddharth-dev-backend.onrender.com';
+    const apiBase = window.location.protocol === 'file:'
+      ? 'http://localhost:10004'
+      : 'https://siddharth-dev-backend.onrender.com';
     const currentUserKey = 'swapify-current-user';
     const searchInput = document.getElementById('searchInput');
     const itemFeed = document.getElementById('itemFeed');
@@ -2695,9 +2697,10 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       }
     });
 
-    aiSendButton?.addEventListener('click', () => {
+    aiSendButton?.addEventListener('click', async () => {
       const query = aiInput.value.trim();
       if (!query) return;
+
       aiChat.appendChild(createAiMessage(query, 'user'));
       aiInput.value = '';
 
@@ -2705,23 +2708,46 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       aiChat.appendChild(loadingMessage);
       aiChat.scrollTop = aiChat.scrollHeight;
 
-      fetch(`${API_BASE_URL}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: query })
-      })
-        .then(response => response.json())
-        .then(data => {
-          loadingMessage.remove();
-          aiChat.appendChild(createAiMessage(data.reply || "My bad, didn't catch that.", 'bot'));
-          aiChat.scrollTop = aiChat.scrollHeight;
-        })
-        .catch(error => {
-          console.error('Chat error:', error);
-          loadingMessage.remove();
-          aiChat.appendChild(createAiMessage('Server is waking up or offline. Try again!', 'bot'));
-          aiChat.scrollTop = aiChat.scrollHeight;
+      try {
+        const data = await apiFetch('/chat', {
+          method: 'POST',
+          body: JSON.stringify({ message: query })
         });
+
+        loadingMessage.remove();
+        aiChat.appendChild(createAiMessage(data.reply || "My bad, didn't catch that.", 'bot'));
+        aiChat.scrollTop = aiChat.scrollHeight;
+      } catch (error) {
+        loadingMessage.remove();
+        const normalized = query.toLowerCase();
+        const generatingDescription = normalized.includes('write description') || normalized.includes('generate description') || normalized.includes('create description');
+        let reply = generateSwapifyReply(query);
+
+        if (generatingDescription) {
+          const itemDetails = {
+            itemName: document.getElementById('itemName')?.value || '',
+            category: document.getElementById('itemCategory')?.value || '',
+            condition: document.getElementById('itemCondition')?.value || '',
+            exchange: document.getElementById('itemExchange')?.value || ''
+          };
+          const generated = generateDescriptionFromAI(itemDetails);
+          if (!hasPremiumAccess() && includesExpensiveItem(query)) {
+            reply = generateSwapifyReply(query);
+          } else {
+            reply = generated;
+            if (itemDetails.itemName && itemDetails.category) {
+              const descField = document.getElementById('itemDescription');
+              if (descField) {
+                descField.value = `${itemDetails.itemName} - ${itemDetails.condition}\n\nLooking to trade for: ${itemDetails.exchange}\n\n${generated}`;
+                descField.focus();
+              }
+            }
+          }
+        }
+
+        aiChat.appendChild(createAiMessage(reply, 'bot'));
+        aiChat.scrollTop = aiChat.scrollHeight;
+      }
     });
 
     aiInput?.addEventListener('keypress', event => {
@@ -2878,7 +2904,13 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
     }
 
     async function enterSwapifyApp() {
-      await openSwapify();
+      const onAppShell = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
+      if (onAppShell) {
+        await openSwapify();
+        return;
+      }
+
+      window.location.assign('./index.html');
     }
 
     document.querySelectorAll('.nav-btn').forEach(btn => {
