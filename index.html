@@ -3037,13 +3037,21 @@ async function verifyAndCompleteSignup(enteredCode) {
 
 async function openSwapify() {
   sessionStorage.setItem(enteredAppKey, 'true');
-  splash.classList.add('hidden-page');
-  headerEl.classList.remove('hidden-page');
-  mainEl.classList.remove('hidden-page');
+  
+  const splash = document.getElementById('splash');
+  if (splash) splash.classList.add('hidden-page');
+  if (headerEl) headerEl.classList.remove('hidden-page');
+  if (mainEl) mainEl.classList.remove('hidden-page');
+
   try {
     const user = getCurrentUser();
     if (!user) {
-      openAuthModal();
+      if (typeof openAuthModal === 'function') {
+        openAuthModal();
+      } else {
+        const authModal = document.getElementById('authModal') || document.getElementById('auth-modal');
+        if (authModal) authModal.classList.remove('hidden-page');
+      }
     }
     updateAuthUI();
     await loadItems(searchInput?.value || '');
