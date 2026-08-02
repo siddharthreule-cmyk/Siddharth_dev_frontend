@@ -2944,7 +2944,6 @@ signupForm?.addEventListener('submit', async event => {
     return;
   }
 
-  // Save the form details temporarily until OTP passes
   pendingUserData = {
     email,
     phone,
@@ -2955,55 +2954,17 @@ signupForm?.addEventListener('submit', async event => {
   };
 
   try {
-    // 1. Trigger the backend to send the OTP via your Gmail
     const response = await fetch('/api/send-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
     });
-    loginForm?.addEventListener('submit', async event => {
-    // ... existing login code ...
-});
-
-// 3. Your authenticate user function
-async function authenticateUser(user) {
-    // ... existing code ...
-}
-
-// 4. PUT IT RIGHT HERE (With your other functions)
-async function verifyAndCompleteSignup(enteredCode) {
-    if (!pendingUserData) return;
-
-    try {
-        const response = await fetch('/api/verify-otp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: pendingUserData.email, code: enteredCode })
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.verified) {
-            const newUser = await createAccount(pendingUserData);
-            authenticateUser(newUser);
-            hideOtpVerificationModal();
-            pendingUserData = null;
-        } else {
-            alert('Wrong OTP, please try again.');
-        }
-    } catch (error) {
-        console.error('Verification failed:', error);
-        alert('Wrong OTP, please try again.');
-    }
-}
 
     const data = await response.json();
 
     if (response.ok && data.success) {
-      // 2. Hide auth modal or signup form, and show your OTP verification modal/input box
-      // (Make sure you have an OTP modal element in your HTML, e.g., id="otpVerificationModal")
-      closeAuthModal(); // Close normal modal temporarily
-      showOtpVerificationModal(); // Show your custom OTP popup function
+      closeAuthModal();
+      showOtpVerificationModal();
     } else {
       alert('Unable to send verification code: ' + (data.error || 'Unknown error'));
     }
@@ -3013,86 +2974,146 @@ async function verifyAndCompleteSignup(enteredCode) {
   }
 });
 
-    async function enterSwapifyApp() {
-      await openSwapify();
+loginForm?.addEventListener('submit', async event => {
+  event.preventDefault();
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!username || !password) {
+    alert('Please enter both username and password to log in.');
+    return;
+  }
+  try {
+    const existing = await loginUser({ username, password });
+    if (!existing) {
+      alert('Invalid username or password. Please try again.');
+      return;
     }
-
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const url = btn.dataset.url;
-        if (url && url.startsWith('#')) {
-          document.querySelector(url)?.scrollIntoView({ behavior: 'smooth' });
-        } else if (url && url.endsWith('.html')) {
-          window.location.href = url;
-        } else if (url) {
-          window.open(url, '_blank', 'noopener');
-        }
-      });
-    });
-
-    document.getElementById('profileNavButton')?.addEventListener('click', () => {
-      window.location.href = 'profile.html';
-    });
-
-    document.getElementById('openProfileBtn')?.addEventListener('click', () => {
-      document.querySelector('#profile')?.scrollIntoView({ behavior: 'smooth' });
-    });
-
-    document.querySelectorAll('.global-language-select').forEach(select => {
-      select.addEventListener('change', () => applyLanguage(select.value));
-    });
-
-    document.getElementById('switchToLogin')?.addEventListener('click', () => showAuthForm('login'));
-    document.getElementById('switchToSignup')?.addEventListener('click', () => showAuthForm('signup'));
-    splashLogo?.addEventListener('click', enterSwapifyApp);
-
-    function applyLanguage(lang) {
-      const selected = translations[lang] ? lang : 'en';
-      currentLanguage = selected;
-      localStorage.setItem('swapify-language', selected);
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.dataset.i18n;
-        const value = translations[selected][key];
-        if (!value) return;
-        if ((el.tagName.toLowerCase() === 'input' || el.tagName.toLowerCase() === 'textarea') && el.placeholder !== undefined) {
-          el.placeholder = value;
-        } else {
-          el.textContent = value;
-        }
-      });
-      document.querySelectorAll('.global-language-select').forEach(select => {
-        select.value = selected;
-      });
-    }
-
-    window.addEventListener('load', async () => {
-      console.log('Swapify local index.html loaded');
-      applyLanguage(currentLanguage);
-      await loadItems(searchInput?.value || '');
-      if (currentUser || sessionStorage.getItem(enteredAppKey) === 'true') {
-        sessionStorage.setItem(enteredAppKey, 'true');
-        splash.classList.add('hidden-page');
-        headerEl.classList.remove('hidden-page');
-        mainEl.classList.remove('hidden-page');
-      }
-      updateAuthUI();
-    });
-  </script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-  const splashLogo = document.getElementById('splashLogo');
-  
-  if (splashLogo) {
-    splashLogo.addEventListener('click', () => {
-      if (typeof openSwapify === 'function') {
-        openSwapify();
-      } else {
-        const splash = document.getElementById('splash');
-        if (splash) splash.classList.add('hidden-page');
-      }
-    });
+    authenticateUser(existing);
+  } catch (error) {
+    console.error('Login failed:', error);
+    alert('Login failed: ' + error.message);
   }
 });
-  </script>
+
+async function authenticateUser(user) {
+  if (!user) return;
+  user.admin = isAdminPassword(user.password) || user.admin;
+  user.premium = user.premium || user.admin;
+  setCurrentUser(user);
+  sessionStorage.setItem(enteredAppKey, 'true');
+  closeAuthModal();
+  splash.classList.add('hidden-page');
+  headerEl.classList.remove('hidden-page');
+  mainEl.classList.remove('hidden-page');
+  await loadItems(searchInput?.value || '');
+}
+
+async function verifyAndCompleteSignup(enteredCode) {
+  if (!pendingUserData) return;
+
+  try {
+    const response = await fetch('/api/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: pendingUserData.email, code: enteredCode })
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.verified) {
+      const newUser = await createAccount(pendingUserData);
+      authenticateUser(newUser);
+      hideOtpVerificationModal();
+      pendingUserData = null;
+    } else {
+      alert('Wrong OTP, please try again.');
+    }
+  } catch (error) {
+    console.error('Verification failed:', error);
+    alert('Wrong OTP, please try again.');
+  }
+}
+
+async function openSwapify() {
+  sessionStorage.setItem(enteredAppKey, 'true');
+  splash.classList.add('hidden-page');
+  headerEl.classList.remove('hidden-page');
+  mainEl.classList.remove('hidden-page');
+  try {
+    const user = getCurrentUser();
+    if (!user) {
+      openAuthModal();
+    }
+    updateAuthUI();
+    await loadItems(searchInput?.value || '');
+  } catch (error) {
+    console.error('Error while opening Swapify:', error);
+  }
+}
+
+async function enterSwapifyApp() {
+  await openSwapify();
+}
+
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const url = btn.dataset.url;
+    if (url && url.startsWith('#')) {
+      document.querySelector(url)?.scrollIntoView({ behavior: 'smooth' });
+    } else if (url && url.endsWith('.html')) {
+      window.location.href = url;
+    } else if (url) {
+      window.open(url, '_blank', 'noopener');
+    }
+  });
+});
+
+document.getElementById('profileNavButton')?.addEventListener('click', () => {
+  window.location.href = 'profile.html';
+});
+
+document.getElementById('openProfileBtn')?.addEventListener('click', () => {
+  document.querySelector('#profile')?.scrollIntoView({ behavior: 'smooth' });
+});
+
+document.querySelectorAll('.global-language-select').forEach(select => {
+  select.addEventListener('change', () => applyLanguage(select.value));
+});
+
+document.getElementById('switchToLogin')?.addEventListener('click', () => showAuthForm('login'));
+document.getElementById('switchToSignup')?.addEventListener('click', () => showAuthForm('signup'));
+splashLogo?.addEventListener('click', enterSwapifyApp);
+
+function applyLanguage(lang) {
+  const selected = translations[lang] ? lang : 'en';
+  currentLanguage = selected;
+  localStorage.setItem('swapify-language', selected);
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    const value = translations[selected][key];
+    if (!value) return;
+    if ((el.tagName.toLowerCase() === 'input' || el.tagName.toLowerCase() === 'textarea') && el.placeholder !== undefined) {
+      el.placeholder = value;
+    } else {
+      el.textContent = value;
+    }
+  });
+  document.querySelectorAll('.global-language-select').forEach(select => {
+    select.value = selected;
+  });
+}
+
+window.addEventListener('load', async () => {
+  console.log('Swapify local index.html loaded');
+  applyLanguage(currentLanguage);
+  await loadItems(searchInput?.value || '');
+  if (currentUser || sessionStorage.getItem(enteredAppKey) === 'true') {
+    sessionStorage.setItem(enteredAppKey, 'true');
+    splash.classList.add('hidden-page');
+    headerEl.classList.remove('hidden-page');
+    mainEl.classList.remove('hidden-page');
+  }
+  updateAuthUI();
+});
 </body>
 </html>
