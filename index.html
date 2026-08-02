@@ -40,43 +40,57 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       overflow-x: hidden;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     header {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      width: 100% !important;
-      z-index: 1000;
+      position: sticky;
+      top: 0;
+      z-index: 2000;
       backdrop-filter: blur(18px);
-      background: rgba(4, 10, 22, 0.9);
+      -webkit-backdrop-filter: blur(18px);
+      background: rgba(4, 10, 22, 0.96);
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
-      transform: none !important;
     }
 
     nav {
       width: min(1180px, calc(100% - 36px));
       margin: 0 auto;
       display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 8px 0;
+    }
+
+    .nav-top {
+      display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 18px 0;
+      gap: 10px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-top::-webkit-scrollbar {
+      display: none;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       font-weight: 700;
-      letter-spacing: 0.18em;
+      font-size: 0.85rem;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--accent);
     }
 
     .brand .dot {
-      width: 12px;
-      height: 12px;
+      width: 9px;
+      height: 9px;
       border-radius: 999px;
       background: linear-gradient(135deg, #4f8cff, #9b59ff);
     }
@@ -93,21 +107,21 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 6px 12px;
+      padding: 3px 9px;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.12);
       color: #d0e9ff;
-      font-size: 0.75rem;
-      letter-spacing: 0.08em;
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
     }
 
     .user-info {
       color: var(--text);
       background: rgba(255,255,255,0.06);
-      padding: 10px 14px;
-      border-radius: 16px;
-      font-size: 0.95rem;
+      padding: 7px 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
@@ -115,11 +129,11 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       border: 1px solid rgba(255, 255, 255, 0.08);
       background: rgba(79, 140, 255, 0.12);
       color: var(--text);
-      padding: 10px 14px;
-      border-radius: 14px;
+      padding: 7px 12px;
+      border-radius: 12px;
       cursor: pointer;
       transition: background 180ms ease, transform 180ms ease;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
     }
 
     .logout-btn:hover {
@@ -378,9 +392,17 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
 
     .nav-links {
       display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
+      gap: 4px;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 5px;
+    }
+
+    .nav-links::-webkit-scrollbar {
+      display: none;
     }
 
     .nav-links button {
@@ -388,10 +410,12 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       background: transparent;
       color: var(--text);
       cursor: pointer;
-      padding: 10px 14px;
-      border-radius: 14px;
+      padding: 6px 10px;
+      border-radius: 10px;
       transition: all 180ms ease;
-      font-size: 0.95rem;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      flex: 0 0 auto;
     }
 
     .nav-links button.active,
@@ -406,11 +430,11 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       border-radius: 999px;
       background: linear-gradient(135deg, #4f8cff, #8e5aff);
       color: white;
-      padding: 10px 16px;
-      font-size: 0.95rem;
+      padding: 7px 14px;
+      font-size: 0.85rem;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 12px 28px rgba(79, 140, 255, 0.18);
+      box-shadow: 0 8px 18px rgba(79, 140, 255, 0.18);
       transition: transform 180ms ease, box-shadow 180ms ease;
       white-space: nowrap;
     }
@@ -444,16 +468,17 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
     }
 
     .search-bar {
-      flex: 1 1 360px;
-      min-width: 240px;
-      max-width: 420px;
+      flex: 1 1 260px;
+      min-width: 180px;
+      max-width: 340px;
     }
 
     .search-bar input {
       width: 100%;
       border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 18px;
-      padding: 12px 16px;
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
       background: rgba(255, 255, 255, 0.06);
       color: var(--text);
       outline: none;
@@ -477,12 +502,13 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
     .language-panel select,
     .language-selector select {
       border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 18px;
-      padding: 12px 14px;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 0.82rem;
       background: rgba(255, 255, 255, 0.05);
       color: var(--text);
       outline: none;
-      min-width: 140px;
+      min-width: 110px;
     }
 
     .language-selector label,
@@ -580,7 +606,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
 
     main {
       width: min(1180px, calc(100% - 36px));
-      margin: 112px auto 60px;
+      margin: 32px auto 60px;
     }
 
     .hero {
@@ -1277,16 +1303,15 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
     }
 
     @media (max-width: 640px) {
-      nav {
-        flex-direction: column;
-        align-items: flex-start;
+      .nav-top {
+        gap: 8px;
       }
-      .nav-links {
-        width: 100%;
-        justify-content: stretch;
+      .search-bar {
+        min-width: 140px;
       }
       .nav-links button {
-        flex: 1;
+        font-size: 0.75rem;
+        padding: 5px 9px;
       }
     }
   </style>
@@ -1336,26 +1361,28 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
 
   <header class="hidden-page">
     <nav>
-      <div class="brand">
-        <span class="dot"></span>
-        <span class="brand-text">Swapify</span>
-        <span class="debug-badge">LOCAL</span>
-        <span class="brand-crown" id="brandCrown" aria-hidden="true">👑</span>
-      </div>
-      <div class="search-bar">
-        <input id="searchInput" type="search" placeholder="Search items or username..." aria-label="Search items or username" data-i18n="searchPlaceholder" />
-      </div>
-      <button class="profile-nav-pill" id="profileNavButton" type="button">Profile</button>
-      <span class="user-info" id="userInfo">Guest</span>
-      <button class="logout-btn hidden-page" id="logoutBtn" type="button">Logout</button>
-      <div class="language-panel">
-        <label for="pageLanguageSelect" class="visually-hidden">Language</label>
-        <select id="pageLanguageSelect" class="global-language-select">
-          <option value="en">English</option>
-          <option value="hi">हिन्दी</option>
-          <option value="es">Español</option>
-          <option value="fr">Français</option>
-        </select>
+      <div class="nav-top">
+        <div class="brand">
+          <span class="dot"></span>
+          <span class="brand-text">Swapify</span>
+          <span class="debug-badge">LOCAL</span>
+          <span class="brand-crown" id="brandCrown" aria-hidden="true">👑</span>
+        </div>
+        <div class="search-bar">
+          <input id="searchInput" type="search" placeholder="Search items or username..." aria-label="Search items or username" data-i18n="searchPlaceholder" />
+        </div>
+        <button class="profile-nav-pill" id="profileNavButton" type="button">Profile</button>
+        <span class="user-info" id="userInfo">Guest</span>
+        <button class="logout-btn hidden-page" id="logoutBtn" type="button">Logout</button>
+        <div class="language-panel">
+          <label for="pageLanguageSelect" class="visually-hidden">Language</label>
+          <select id="pageLanguageSelect" class="global-language-select">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+          </select>
+        </div>
       </div>
       <div class="nav-links">
         <button class="nav-btn" type="button" data-url="#post-it" data-i18n="navPostIt">Post It</button>
@@ -1630,9 +1657,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
   </footer>
 
   <script type="module">
-    const apiBase = window.location.protocol === 'file:'
-      ? 'http://localhost:10004'
-      : 'https://siddharth-dev-backend.onrender.com';
+    const apiBase = 'https://siddharth-dev-backend.onrender.com';
     const currentUserKey = 'swapify-current-user';
     const searchInput = document.getElementById('searchInput');
     const itemFeed = document.getElementById('itemFeed');
@@ -2697,10 +2722,9 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       }
     });
 
-    aiSendButton?.addEventListener('click', async () => {
+    aiSendButton?.addEventListener('click', () => {
       const query = aiInput.value.trim();
       if (!query) return;
-
       aiChat.appendChild(createAiMessage(query, 'user'));
       aiInput.value = '';
 
@@ -2708,46 +2732,23 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       aiChat.appendChild(loadingMessage);
       aiChat.scrollTop = aiChat.scrollHeight;
 
-      try {
-        const data = await apiFetch('/chat', {
-          method: 'POST',
-          body: JSON.stringify({ message: query })
+      fetch(`${API_BASE_URL}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: query })
+      })
+        .then(response => response.json())
+        .then(data => {
+          loadingMessage.remove();
+          aiChat.appendChild(createAiMessage(data.reply || "My bad, didn't catch that.", 'bot'));
+          aiChat.scrollTop = aiChat.scrollHeight;
+        })
+        .catch(error => {
+          console.error('Chat error:', error);
+          loadingMessage.remove();
+          aiChat.appendChild(createAiMessage('Server is waking up or offline. Try again!', 'bot'));
+          aiChat.scrollTop = aiChat.scrollHeight;
         });
-
-        loadingMessage.remove();
-        aiChat.appendChild(createAiMessage(data.reply || "My bad, didn't catch that.", 'bot'));
-        aiChat.scrollTop = aiChat.scrollHeight;
-      } catch (error) {
-        loadingMessage.remove();
-        const normalized = query.toLowerCase();
-        const generatingDescription = normalized.includes('write description') || normalized.includes('generate description') || normalized.includes('create description');
-        let reply = generateSwapifyReply(query);
-
-        if (generatingDescription) {
-          const itemDetails = {
-            itemName: document.getElementById('itemName')?.value || '',
-            category: document.getElementById('itemCategory')?.value || '',
-            condition: document.getElementById('itemCondition')?.value || '',
-            exchange: document.getElementById('itemExchange')?.value || ''
-          };
-          const generated = generateDescriptionFromAI(itemDetails);
-          if (!hasPremiumAccess() && includesExpensiveItem(query)) {
-            reply = generateSwapifyReply(query);
-          } else {
-            reply = generated;
-            if (itemDetails.itemName && itemDetails.category) {
-              const descField = document.getElementById('itemDescription');
-              if (descField) {
-                descField.value = `${itemDetails.itemName} - ${itemDetails.condition}\n\nLooking to trade for: ${itemDetails.exchange}\n\n${generated}`;
-                descField.focus();
-              }
-            }
-          }
-        }
-
-        aiChat.appendChild(createAiMessage(reply, 'bot'));
-        aiChat.scrollTop = aiChat.scrollHeight;
-      }
     });
 
     aiInput?.addEventListener('keypress', event => {
@@ -2904,13 +2905,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
     }
 
     async function enterSwapifyApp() {
-      const onAppShell = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
-      if (onAppShell) {
-        await openSwapify();
-        return;
-      }
-
-      window.location.assign('./index.html');
+      await openSwapify();
     }
 
     document.querySelectorAll('.nav-btn').forEach(btn => {
