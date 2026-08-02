@@ -1659,6 +1659,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
   <script type="module">
     const apiBase = 'https://siddharth-dev-backend.onrender.com';
     const currentUserKey = 'swapify-current-user';
+    const enteredAppKey = 'swapify-entered-app';
     const searchInput = document.getElementById('searchInput');
     const itemFeed = document.getElementById('itemFeed');
     const itemImage = document.getElementById('itemImage');
@@ -2819,6 +2820,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       if (!shouldLogout) return;
       clearCurrentUser();
       setPremiumAccess(false);
+      sessionStorage.removeItem(enteredAppKey);
       splash.classList.remove('hidden-page');
       headerEl.classList.add('hidden-page');
       mainEl.classList.add('hidden-page');
@@ -2881,6 +2883,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       user.admin = isAdminPassword(user.password) || user.admin;
       user.premium = user.premium || user.admin;
       setCurrentUser(user);
+      sessionStorage.setItem(enteredAppKey, 'true');
       closeAuthModal();
       splash.classList.add('hidden-page');
       headerEl.classList.remove('hidden-page');
@@ -2889,6 +2892,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
     }
 
     async function openSwapify() {
+      sessionStorage.setItem(enteredAppKey, 'true');
       splash.classList.add('hidden-page');
       headerEl.classList.remove('hidden-page');
       mainEl.classList.remove('hidden-page');
@@ -2960,7 +2964,8 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       console.log('Swapify local index.html loaded');
       applyLanguage(currentLanguage);
       await loadItems(searchInput?.value || '');
-      if (currentUser) {
+      if (currentUser || sessionStorage.getItem(enteredAppKey) === 'true') {
+        sessionStorage.setItem(enteredAppKey, 'true');
         splash.classList.add('hidden-page');
         headerEl.classList.remove('hidden-page');
         mainEl.classList.remove('hidden-page');
