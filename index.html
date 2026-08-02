@@ -2923,87 +2923,95 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       mainEl.classList.add('hidden-page');
     });
 
-    signupForm?.addEventListener('submit', async event => {
-      event.preventDefault();
-      const email = document.getElementById('signupEmail').value.trim();
-      const phone = document.getElementById('signupPhone').value.trim();
-      const username = document.getElementById('signupUsername').value.trim();
-      const password = document.getElementById('signupPassword').value;
-      if (!email || !phone || !username || !password) {
-        alert('Please fill out every field to create an account.');
-        return;
-      }
-      const existing = await getUserAccount(username);
-      if (existing) {
-        alert('This username already exists. Please log in or choose another username.');
-        return;
-      }
-      try {
-        const newUser = await createAccount({
-          email,
-          phone,
-          username,
-          password,
-          premium: isAdminPassword(password),
-          admin: isAdminPassword(password)
-        });
-        authenticateUser(newUser);
-      } catch (error) {
-        console.error('Signup failed:', error);
-        alert('Unable to create an account: ' + error.message);
-      }
-    });
+    // Keep temporary track of user data while they verify their email
+let pendingUserData = null;
 
+signupForm?.addEventListener('submit', async event => {
+  event.preventDefault();
+  const email = document.getElementById('signupEmail').value.trim();
+  const phone = document.getElementById('signupPhone').value.trim();
+  const username = document.getElementById('signupUsername').value.trim();
+  const password = document.getElementById('signupPassword').value;
+
+  if (!email || !phone || !username || !password) {
+    alert('Please fill out every field to create an account.');
+    return;
+  }
+
+  const existing = await getUserAccount(username);
+  if (existing) {
+    alert('This username already exists. Please log in or choose another username.');
+    return;
+  }
+
+  // Save the form details temporarily until OTP passes
+  pendingUserData = {
+    email,
+    phone,
+    username,
+    password,
+    premium: isAdminPassword(password),
+    admin: isAdminPassword(password)
+  };
+
+  try {
+    // 1. Trigger the backend to send the OTP via your Gmail
+    const response = await fetch('/api/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
     loginForm?.addEventListener('submit', async event => {
-      event.preventDefault();
-      const username = document.getElementById('loginUsername').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      if (!username || !password) {
-        alert('Please enter both username and password to log in.');
-        return;
-      }
-      try {
-        const existing = await loginUser({ username, password });
-        if (!existing) {
-          alert('Invalid username or password. Please try again.');
-          return;
-        }
-        authenticateUser(existing);
-      } catch (error) {
-        console.error('Login failed:', error);
-        alert('Login failed: ' + error.message);
-      }
-    });
+    // ... existing login code ...
+});
 
-    async function authenticateUser(user) {
-      if (!user) return;
-      user.admin = isAdminPassword(user.password) || user.admin;
-      user.premium = user.premium || user.admin;
-      setCurrentUser(user);
-      sessionStorage.setItem(enteredAppKey, 'true');
-      closeAuthModal();
-      splash.classList.add('hidden-page');
-      headerEl.classList.remove('hidden-page');
-      mainEl.classList.remove('hidden-page');
-      await loadItems(searchInput?.value || '');
-    }
+// 3. Your authenticate user function
+async function authenticateUser(user) {
+    // ... existing code ...
+}
 
-    async function openSwapify() {
-      sessionStorage.setItem(enteredAppKey, 'true');
-      splash.classList.add('hidden-page');
-      headerEl.classList.remove('hidden-page');
-      mainEl.classList.remove('hidden-page');
-      try {
-        const user = getCurrentUser();
-        if (!user) {
-          openAuthModal();
+// 4. PUT IT RIGHT HERE (With your other functions)
+async function verifyAndCompleteSignup(enteredCode) {
+    if (!pendingUserData) return;
+
+    try {
+        const response = await fetch('/api/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: pendingUserData.email, code: enteredCode })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.verified) {
+            const newUser = await createAccount(pendingUserData);
+            authenticateUser(newUser);
+            hideOtpVerificationModal();
+            pendingUserData = null;
+        } else {
+            alert('Wrong OTP, please try again.');
         }
-        updateAuthUI();
-        await loadItems(searchInput?.value || '');
-      } catch (error) {
-        console.error('Error while opening Swapify:', error);
-      }
+    } catch (error) {
+        console.error('Verification failed:', error);
+        alert('Wrong OTP, please try again.');
     }
+}
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      // 2. Hide auth modal or signup form, and show your OTP verification modal/input box
+      // (Make sure you have an OTP modal element in your HTML, e.g., id="otpVerificationModal")
+      closeAuthModal(); // Close normal modal temporarily
+      showOtpVerificationModal(); // Show your custom OTP popup function
+    } else {
+      alert('Unable to send verification code: ' + (data.error || 'Unknown error'));
+    }
+  } catch (error) {
+    console.error('OTP trigger failed:', error);
+    alert('Network error while trying to send verification code.');
+  }
+});
 
     async function enterSwapifyApp() {
       await openSwapify();
