@@ -1,2977 +1,1075 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Swapify</title>
-  <script>
-// At the top of your frontend script (e.g., in index.html)
-
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:4000'
-  : 'https://siddharth-dev-backend.onrender.com'; // Replace with your actual Render backend URL
-  </script>
-  <style>
-    :root {
-      --bg: #050a18;
-      --surface: rgba(11, 23, 42, 0.88);
-      --surface-strong: rgba(10, 18, 33, 0.96);
-      --accent: #4f8cff;
-      --accent-soft: rgba(79, 140, 255, 0.22);
-      --text: #f3f7ff;
-      --muted: #a8b7d6;
-      --success: #62d6a7;
-      --warning: #ffd166;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin:  0;
-      padding: 0;
-      font-family: 'Inter', system-ui, sans-serif;
-    }
-
-    body {
-      min-height: 100vh;
-      color: var(--text);
-      background: radial-gradient(circle at top left, rgba(79, 140, 255, 0.22), transparent 20%),
-                  radial-gradient(circle at bottom right, rgba(255, 110, 186, 0.16), transparent 18%),
-                  linear-gradient(180deg, #0b1733 0%, #02060f 100%);
-      overflow-x: hidden;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 2000;
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      background: rgba(4, 10, 22, 0.96);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
-    }
-
-    nav {
-      width: min(1180px, calc(100% - 36px));
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding: 8px 0;
-    }
-
-    .nav-top {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-
-    .nav-top::-webkit-scrollbar {
-      display: none;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 700;
-      font-size: 0.85rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
-
-    .brand .dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #4f8cff, #9b59ff);
-    }
-
-    .brand .brand-crown {
-      display: none;
-      color: #ffd700;
-      font-size: 0.95rem;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .debug-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 3px 9px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.12);
-      color: #d0e9ff;
-      font-size: 0.65rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .user-info {
-      color: var(--text);
-      background: rgba(255,255,255,0.06);
-      padding: 7px 12px;
-      border-radius: 12px;
-      font-size: 0.85rem;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .logout-btn {
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(79, 140, 255, 0.12);
-      color: var(--text);
-      padding: 7px 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background 180ms ease, transform 180ms ease;
-      font-size: 0.85rem;
-    }
-
-    .logout-btn:hover {
-      background: rgba(79, 140, 255, 0.2);
-      transform: translateY(-1px);
-    }
-
-    .logout-btn.hidden-page {
-      display: none;
-    }
-
-    .auth-modal {
-      position: fixed;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      background: rgba(0, 0, 0, 0.75);
-      z-index: 50;
-      padding: 24px;
-    }
-
-    .auth-card {
-      width: min(520px, 100%);
-      background: rgba(10, 16, 28, 0.98);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 28px;
-      padding: 28px;
-      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.4);
-      display: grid;
-      gap: 18px;
-    }
-
-    .auth-header {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
-
-    .auth-tab {
-      flex: 1;
-      text-align: center;
-      padding: 14px 16px;
-      border-radius: 18px;
-      cursor: pointer;
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--muted);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .auth-tab.active {
-      background: rgba(79, 140, 255, 0.16);
-      color: var(--text);
-      border-color: rgba(79, 140, 255, 0.3);
-    }
-
-    .auth-card input {
-      width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--text);
-      border-radius: 16px;
-      padding: 16px 18px;
-      font-size: 0.95rem;
-      outline: none;
-    }
-
-    .auth-submit {
-      border: none;
-      border-radius: 18px;
-      padding: 14px 18px;
-      background: linear-gradient(135deg, #4f8cff, #8e5aff);
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 150ms ease, box-shadow 150ms ease;
-    }
-
-    .auth-submit:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 16px 32px rgba(79, 140, 255, 0.25);
-    }
-
-    .auth-switch {
-      color: var(--muted);
-      text-align: center;
-      font-size: 0.95rem;
-    }
-
-    .auth-switch button {
-      border: none;
-      background: none;
-      color: var(--accent);
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .mini-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 10px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255, 215, 0, 0.12);
-      color: #ffd700;
-      border: 1px solid rgba(255, 215, 0, 0.2);
-      font-size: 0.92rem;
-      font-weight: 700;
-    }
-
-    .crown-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 14px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255, 215, 0, 0.14);
-      color: #ffd700;
-      border: 1px solid rgba(255, 215, 0, 0.24);
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-
-    .premium-controls {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .premium-status {
-      font-weight: 700;
-      color: #ffd700;
-    }
-
-    .premium-status.active {
-      color: #5ce27a;
-    }
-
-    .premium-pay-link {
-      display: inline-flex;
-      color: #4fffca;
-      text-decoration: underline;
-      cursor: pointer;
-      font-weight: 700;
-      margin-top: 12px;
-    }
-
-    .payment-form {
-      margin-top: 18px;
-      display: grid;
-      gap: 14px;
-      background: rgba(255, 255, 255, 0.101);
-      border: 1px solid rgba(185, 79, 255, 0.16);
-      border-radius: 24px;
-      padding: 20px;
-    }
-
-    .payment-form.hidden-page {
-      display: none;
-    }
-
-    .payment-form fieldset {
-      border: none;
-      padding: 0;
-      display: grid;
-      gap: 12px;
-    }
-
-    .payment-form label {
-      font-size: 0.95rem;
-      color: var(--muted);
-    }
-
-    .payment-form input {
-      width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 14px 16px;
-      font-size: 0.95rem;
-      outline: none;
-    }
-
-    .payment-submit {
-      border: none;
-      border-radius: 18px;
-      padding: 14px 18px;
-      background: linear-gradient(135deg, #4f8cff, #8e5aff);
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 150ms ease, box-shadow 150ms ease;
-    }
-
-    .payment-submit:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 26px rgba(79, 140, 255, 0.22);
-    }
-
-    .payment-note {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .admin-user-list {
-      display: grid;
-      gap: 14px;
-      margin-top: 24px;
-    }
-
-    .admin-user-card {
-      display: grid;
-      gap: 10px;
-      padding: 18px 20px;
-      border-radius: 22px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .admin-user-card strong {
-      font-size: 1rem;
-      color: #eef4ff;
-    }
-
-    .admin-user-card span {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .admin-user-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .admin-user-actions button {
-      border: none;
-      border-radius: 16px;
-      padding: 10px 14px;
-      background: linear-gradient(135deg, #ff6b6b, #ff4f79);
-      color: white;
-      cursor: pointer;
-      transition: transform 150ms ease, box-shadow 150ms ease;
-    }
-
-    .admin-user-actions button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 20px rgba(255, 111, 107, 0.24);
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 4px;
-      flex-wrap: nowrap;
-      justify-content: flex-start;
-      overflow-x: auto;
-      scrollbar-width: none;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      padding-top: 5px;
-    }
-
-    .nav-links::-webkit-scrollbar {
-      display: none;
-    }
-
-    .nav-links button {
-      border: none;
-      background: transparent;
-      color: var(--text);
-      cursor: pointer;
-      padding: 6px 10px;
-      border-radius: 10px;
-      transition: all 180ms ease;
-      font-size: 0.8rem;
-      white-space: nowrap;
-      flex: 0 0 auto;
-    }
-
-    .nav-links button.active,
-    .nav-links button:hover {
-      color: #fff;
-      background: rgba(79, 140, 255, 0.16);
-      box-shadow: 0 10px 20px rgba(79, 140, 255, 0.12);
-    }
-
-    .profile-nav-pill {
-      border: none;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #4f8cff, #8e5aff);
-      color: white;
-      padding: 7px 14px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 8px 18px rgba(79, 140, 255, 0.18);
-      transition: transform 180ms ease, box-shadow 180ms ease;
-      white-space: nowrap;
-    }
-
-    .profile-nav-pill:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 16px 32px rgba(79, 140, 255, 0.24);
-    }
-
-    .hero-actions {
-      margin-top: 24px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-    }
-
-    .primary-action {
-      border: none;
-      border-radius: 18px;
-      padding: 16px 24px;
-      background: linear-gradient(135deg, #4f8cff, #8e5aff);
-      color: white;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: transform 180ms ease, box-shadow 180ms ease;
-    }
-
-    .primary-action:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 18px 38px rgba(79, 140, 255, 0.2);
-    }
-
-    .search-bar {
-      flex: 1 1 260px;
-      min-width: 180px;
-      max-width: 340px;
-    }
-
-    .search-bar input {
-      width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      padding: 8px 12px;
-      font-size: 0.85rem;
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--text);
-      outline: none;
-      transition: border-color 150ms ease, transform 150ms ease;
-    }
-
-    .search-bar input:focus {
-      border-color: rgba(79, 140, 255, 0.55);
-      transform: translateY(-1px);
-    }
-
-    .language-panel,
-    .language-selector {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      justify-content: flex-end;
-      flex-wrap: wrap;
-    }
-
-    .language-panel select,
-    .language-selector select {
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      padding: 8px 10px;
-      font-size: 0.82rem;
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text);
-      outline: none;
-      min-width: 110px;
-    }
-
-    .language-selector label,
-    .language-panel label {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .visually-hidden {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      margin: -1px;
-      border: 0;
-      clip: rect(0 0 0 0);
-      overflow: hidden;
-      padding: 0;
-      white-space: nowrap;
-    }
-
-    #splash {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      padding: 24px;
-    }
-
-    .splash-card {
-      display: grid;
-      gap: 24px;
-      align-items: center;
-      justify-items: center;
-      background: rgba(10, 18, 31, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 32px;
-      padding: 48px 42px;
-      box-shadow: 0 30px 80px rgba(79, 140, 255, 0.18);
-      max-width: 520px;
-    }
-
-    .splash-logo {
-      width: 240px;
-      height: 240px;
-      border-radius: 28px;
-      display: grid;
-      place-items: center;
-      background: radial-gradient(circle at center, rgba(79, 140, 255, 0.24), transparent 55%);
-      box-shadow: 0 0 70px rgba(79, 140, 255, 0.38);
-      cursor: pointer;
-      transition: transform 240ms ease, box-shadow 240ms ease;
-      position: relative;
-    }
-
-    .splash-logo::after {
-      content: '';
-      position: absolute;
-      inset: -18px;
-      border-radius: 32px;
-      background: radial-gradient(circle, rgba(79, 140, 255, 0.2), transparent 60%);
-      opacity: 0.7;
-      filter: blur(18px);
-    }
-
-    .splash-logo img {
-      width: 180px;
-      height: 180px;
-      object-fit: contain;
-      z-index: 1;
-      position: relative;
-    }
-
-    .splash-logo:hover {
-      transform: scale(1.04);
-      box-shadow: 0 0 90px rgba(79, 140, 255, 0.5);
-    }
-
-    .splash-title {
-      color: #ffffff;
-      font-size: clamp(2.6rem, 4vw, 4rem);
-      font-weight: 800;
-      letter-spacing: -0.06em;
-    }
-
-    .splash-subtitle {
-      color: var(--muted);
-      max-width: 460px;
-      font-size: 1rem;
-      line-height: 1.8;
-    }
-
-    .hidden-page {
-      display: none !important;
-    }
-
-    main {
-      width: min(1180px, calc(100% - 36px));
-      margin: 32px auto 60px;
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 32px;
-      align-items: center;
-      margin-bottom: 42px;
-    }
-
-    .hero-copy {
-      max-width: 620px;
-    }
-
-    .hero-copy h1,
-    .hero-copy h2 {
-      font-size: clamp(3rem, 4vw, 4.2rem);
-      line-height: 0.98;
-      letter-spacing: -0.06em;
-      margin-bottom: 18px;
-    }
-
-    .hero-copy p {
-      color: var(--muted);
-      font-size: 1.08rem;
-      line-height: 1.8;
-      margin-bottom: 24px;
-    }
-
-    .hero-copy .quote {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(79, 140, 255, 0.12);
-      border: 1px solid rgba(79, 140, 255, 0.24);
-      padding: 18px 20px;
-      border-radius: 22px;
-      color: #dbe9ff;
-      backdrop-filter: blur(16px);
-    }
-
-    .hero-copy .highlight {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 24px;
-      padding: 16px 20px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .hero-copy .highlight strong {
-      color: #fdfcff;
-    }
-
-    .hero-visual {
-      position: relative;
-      border-radius: 34px;
-      overflow: hidden;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      min-height: 420px;
-      box-shadow: 0 28px 90px rgba(0, 0, 0, 0.18);
-    }
-
-    .hero-visual::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top left, rgba(79, 140, 255, 0.24), transparent 30%),
-                  radial-gradient(circle at bottom right, rgba(255, 110, 186, 0.16), transparent 32%);
-      pointer-events: none;
-    }
-
+<style>
+  :root {
+    /* Prehistoric earth palette – warm, readable, general-public friendly */
+    --bg: #1c120b;
+    --surface: #2a1c12;
+    --surface-strong: #3a2818;
+    --parchment: #f0e6d2;
+    --clay: #c4a484;
+    --sand: #d4b896;
+    --bone: #f5f0e6;
+    --moss: #6b8e4e;
+    --fire: #e07a3d;
+    --fire-deep: #c45c26;
+    --stone: #5c4635;
+    --muted: #b8a08a;
+    --text: #f5f0e6;
+    --success: #7a9e5a;
+    --warning: #e8b86d;
+    --border: rgba(196, 164, 132, 0.35);
+    --shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Georgia, "Times New Roman", "Palatino Linotype", serif;
+  }
+
+  body {
+    min-height: 100vh;
+    color: var(--text);
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(224, 122, 61, 0.12), transparent 45%),
+      radial-gradient(ellipse at 80% 90%, rgba(107, 142, 78, 0.08), transparent 40%),
+      linear-gradient(165deg, #1c120b 0%, #2a1c12 40%, #1a1009 100%);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* ========== HEADER / NAV ========== */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 2000;
+    background: rgba(26, 16, 9, 0.97);
+    border-bottom: 2px solid var(--stone);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  nav {
+    width: min(1180px, calc(100% - 36px));
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 0;
+  }
+
+  .nav-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .nav-top::-webkit-scrollbar {
+    display: none;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fire);
+  }
+
+  .brand .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #f0c060, var(--fire-deep));
+    box-shadow: 0 0 8px rgba(224, 122, 61, 0.5);
+  }
+
+  .brand .brand-crown {
+    display: none;
+    color: #e8c060;
+    font-size: 1rem;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .debug-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 9px;
+    border-radius: 4px;
+    background: var(--stone);
+    color: var(--sand);
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid var(--clay);
+  }
+
+  .user-info {
+    color: var(--bone);
+    background: var(--surface-strong);
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    border: 1px solid var(--border);
+  }
+
+  .logout-btn {
+    border: 1px solid var(--clay);
+    background: var(--surface);
+    color: var(--bone);
+    padding: 7px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 160ms ease, transform 160ms ease;
+    font-size: 0.85rem;
+    font-family: inherit;
+  }
+
+  .logout-btn:hover {
+    background: var(--stone);
+    transform: translateY(-1px);
+  }
+
+  .logout-btn.hidden-page {
+    display: none;
+  }
+
+  /* ========== AUTH MODAL ========== */
+  .auth-modal {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(12, 8, 4, 0.85);
+    z-index: 50;
+    padding: 24px;
+  }
+
+  .auth-card {
+    width: min(520px, 100%);
+    background: var(--surface-strong);
+    border: 2px solid var(--clay);
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: var(--shadow);
+    display: grid;
+    gap: 18px;
+  }
+
+  .auth-header {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .auth-tab {
+    flex: 1;
+    text-align: center;
+    padding: 14px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    font-family: inherit;
+  }
+
+  .auth-tab.active {
+    background: linear-gradient(135deg, var(--fire), var(--fire-deep));
+    color: var(--bone);
+    border-color: var(--fire);
+  }
+
+  .auth-card input {
+    width: 100%;
+    border: 1px solid var(--clay);
+    background: var(--bg);
+    color: var(--bone);
+    border-radius: 8px;
+    padding: 16px 18px;
+    font-size: 0.95rem;
+    outline: none;
+    font-family: inherit;
+  }
+
+  .auth-card input:focus {
+    border-color: var(--fire);
+  }
+
+  .auth-submit {
+    border: none;
+    border-radius: 8px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, var(--fire), var(--fire-deep));
+    color: var(--bone);
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+    font-family: inherit;
+    font-size: 1rem;
+  }
+
+  .auth-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(224, 122, 61, 0.35);
+  }
+
+  .auth-switch {
+    color: var(--muted);
+    text-align: center;
+    font-size: 0.95rem;
+  }
+
+  .auth-switch button {
+    border: none;
+    background: none;
+    color: var(--fire);
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .mini-badge,
+  .crown-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    background: rgba(232, 192, 96, 0.15);
+    color: #e8c060;
+    border: 1px solid rgba(232, 192, 96, 0.35);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .premium-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .premium-status {
+    font-weight: 700;
+    color: #e8c060;
+  }
+
+  .premium-status.active {
+    color: var(--success);
+  }
+
+  .premium-pay-link {
+    display: inline-flex;
+    color: var(--fire);
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 700;
+    margin-top: 12px;
+  }
+
+  .payment-form {
+    margin-top: 18px;
+    display: grid;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--clay);
+    border-radius: 10px;
+    padding: 20px;
+  }
+
+  .payment-form.hidden-page {
+    display: none;
+  }
+
+  .payment-form fieldset {
+    border: none;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+  }
+
+  .payment-form label {
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+
+  .payment-form input {
+    width: 100%;
+    border: 1px solid var(--clay);
+    background: var(--bg);
+    color: var(--bone);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 0.95rem;
+    outline: none;
+    font-family: inherit;
+  }
+
+  .payment-submit {
+    border: none;
+    border-radius: 8px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, var(--fire), var(--fire-deep));
+    color: var(--bone);
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+    font-family: inherit;
+  }
+
+  .payment-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(224, 122, 61, 0.3);
+  }
+
+  .payment-note {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  /* ========== ADMIN ========== */
+  .admin-user-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 24px;
+  }
+
+  .admin-user-card {
+    display: grid;
+    gap: 10px;
+    padding: 18px 20px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .admin-user-card strong {
+    font-size: 1rem;
+    color: var(--bone);
+  }
+
+  .admin-user-card span {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .admin-user-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .admin-user-actions button {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #c45c26, #a04820);
+    color: var(--bone);
+    cursor: pointer;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+    font-family: inherit;
+  }
+
+  .admin-user-actions button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(196, 92, 38, 0.3);
+  }
+
+  /* ========== NAV LINKS ========== */
+  .nav-links {
+    display: flex;
+    gap: 4px;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-top: 1px solid var(--stone);
+    padding-top: 6px;
+  }
+
+  .nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-links button {
+    border: none;
+    background: transparent;
+    color: var(--sand);
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 160ms ease;
+    font-size: 0.82rem;
+    white-space: nowrap;
+    flex: 0 0 auto;
+    font-family: inherit;
+  }
+
+  .nav-links button.active,
+  .nav-links button:hover {
+    color: var(--bone);
+    background: var(--stone);
+  }
+
+  .profile-nav-pill {
+    border: none;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--fire), var(--fire-deep));
+    color: var(--bone);
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(224, 122, 61, 0.25);
+    transition: transform 160ms ease, box-shadow 160ms ease;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+
+  .profile-nav-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(224, 122, 61, 0.35);
+  }
+
+  /* ========== HERO & ACTIONS ========== */
+  .hero-actions {
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .primary-action {
+    border: none;
+    border-radius: 8px;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, var(--fire), var(--fire-deep));
+    color: var(--bone);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 160ms ease, box-shadow 160ms ease;
+    font-family: inherit;
+    font-weight: 700;
+  }
+
+  .primary-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(224, 122, 61, 0.3);
+  }
+
+  .search-bar {
+    flex: 1 1 260px;
+    min-width: 180px;
+    max-width: 340px;
+  }
+
+  .search-bar input {
+    width: 100%;
+    border: 1px solid var(--clay);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    background: var(--surface);
+    color: var(--bone);
+    outline: none;
+    transition: border-color 150ms ease;
+    font-family: inherit;
+  }
+
+  .search-bar input:focus {
+    border-color: var(--fire);
+  }
+
+  .language-panel,
+  .language-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .language-panel select,
+  .language-selector select {
+    border: 1px solid var(--clay);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 0.82rem;
+    background: var(--surface);
+    color: var(--bone);
+    outline: none;
+    min-width: 110px;
+    font-family: inherit;
+  }
+
+  .language-selector label,
+  .language-panel label {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    border: 0;
+    clip: rect(0 0 0 0);
+    overflow: hidden;
+    padding: 0;
+    white-space: nowrap;
+  }
+
+  /* ========== SPLASH ========== */
+  #splash {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 24px;
+  }
+
+  .splash-card {
+    display: grid;
+    gap: 24px;
+    align-items: center;
+    justify-items: center;
+    background: var(--surface-strong);
+    border: 2px solid var(--clay);
+    border-radius: 16px;
+    padding: 48px 42px;
+    box-shadow: var(--shadow);
+    max-width: 520px;
+  }
+
+  .splash-logo {
+    width: 220px;
+    height: 220px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at center, rgba(224, 122, 61, 0.2), transparent 60%);
+    box-shadow: 0 0 40px rgba(224, 122, 61, 0.25);
+    cursor: pointer;
+    transition: transform 220ms ease, box-shadow 220ms ease;
+    position: relative;
+    border: 2px solid var(--clay);
+  }
+
+  .splash-logo::after {
+    content: '';
+    position: absolute;
+    inset: -12px;
+    border-radius: 20px;
+    background: radial-gradient(circle, rgba(224, 122, 61, 0.12), transparent 65%);
+    opacity: 0.8;
+    filter: blur(12px);
+    pointer-events: none;
+  }
+
+  .splash-logo img {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+    z-index: 1;
+    position: relative;
+  }
+
+  .splash-logo:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 55px rgba(224, 122, 61, 0.4);
+  }
+
+  .splash-title {
+    color: var(--bone);
+    font-size: clamp(2.4rem, 4vw, 3.6rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .splash-subtitle {
+    color: var(--muted);
+    max-width: 440px;
+    font-size: 1.05rem;
+    line-height: 1.75;
+  }
+
+  .hidden-page {
+    display: none !important;
+  }
+
+  /* ========== MAIN LAYOUT ========== */
+  main {
+    width: min(1180px, calc(100% - 36px));
+    margin: 32px auto 60px;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 32px;
+    align-items: center;
+    margin-bottom: 42px;
+  }
+
+  .hero-copy {
+    max-width: 620px;
+  }
+
+  .hero-copy h1,
+  .hero-copy h2 {
+    font-size: clamp(2.4rem, 3.8vw, 3.6rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+    color: var(--bone);
+  }
+
+  .hero-copy p {
+    color: var(--muted);
+    font-size: 1.08rem;
+    line-height: 1.75;
+    margin-bottom: 22px;
+  }
+
+  .hero-copy .quote {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(224, 122, 61, 0.12);
+    border: 1px solid rgba(224, 122, 61, 0.3);
+    padding: 16px 18px;
+    border-radius: 10px;
+    color: var(--sand);
+  }
+
+  .hero-copy .highlight {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 22px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .hero-copy .highlight strong {
+    color: var(--bone);
+  }
+
+  .hero-visual {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--surface);
+    border: 2px solid var(--clay);
+    min-height: 400px;
+    box-shadow: var(--shadow);
+  }
+
+  .hero-visual::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at top left, rgba(224, 122, 61, 0.15), transparent 35%),
+      radial-gradient(circle at bottom right, rgba(107, 142, 78, 0.1), transparent 35%);
+    pointer-events: none;
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 28px;
+    margin-top: 32px;
+    align-items: start;
+  }
+
+  #post-it,
+  #swapify-ai {
+    background: transparent;
+  }
+
+  @media (max-width: 980px) {
     .dashboard-grid {
-      display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
-      gap: 28px;
-      margin-top: 32px;
-      align-items: start;
-    }
-
-    #post-it,
-    #swapify-ai {
-      background: transparent;
-    }
-
-    @media (max-width: 980px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .hero-visual .panel {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      padding: 34px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      z-index: 1;
-      color: #eef4ff;
-    }
-
-    .card {
-      background: rgba(5, 12, 28, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 28px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      backdrop-filter: blur(18px);
-    }
-
-    .card h3 {
-      font-size: 1.04rem;
-      color: #cdd7ff;
-    }
-
-    .card p {
-      color: var(--muted);
-      line-height: 1.75;
-    }
-
-    .stat {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 18px 20px;
-      border-radius: 22px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .stat strong {
-      font-size: 1.55rem;
-      color: #fff;
-    }
-
-    section {
-      margin-top: 18px;
-      scroll-margin-top: 96px;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 18px;
-      gap: 16px;
-    }
-
-    .section-title h2 {
-      font-size: 1.7rem;
-      letter-spacing: -0.03em;
-    }
-
-    .section-title span {
-      color: var(--muted);
-    }
-
-    .intro-card {
-      padding: 28px 30px;
-      border-radius: 28px;
-      background: var(--surface);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.14);
-    }
-
-    .intro-card p {
-      color: var(--muted);
-      font-size: 1rem;
-      line-height: 1.8;
-    }
-
-    .post-form {
-      display: grid;
-      gap: 20px;
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .category-picker {
-      position: relative;
-    }
-
-    .category-trigger {
-      width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--text);
-      border-radius: 16px;
-      padding: 16px 18px;
-      outline: none;
-      font-size: 0.97rem;
-      transition: border 150ms ease, transform 150ms ease;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      cursor: pointer;
-    }
-
-    .category-trigger:focus,
-    .category-trigger:hover {
-      border-color: rgba(79, 140, 255, 0.55);
-      transform: translateY(-1px);
-    }
-
-    .category-trigger .chevron {
-      color: #b8c7e6;
-      font-size: 0.85rem;
-    }
-
-    .category-menu {
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 0;
-      right: 0;
-      z-index: 30;
-      display: grid;
-      gap: 6px;
-      padding: 8px;
-      border-radius: 18px;
-      background: #081427;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.35);
-      max-height: 240px;
-      overflow-y: auto;
-    }
-
-    .other-category-wrap {
-      grid-column: 1 / -1;
-      display: none;
-      gap: 10px;
-      margin-top: -4px;
-    }
-
-    .other-category-wrap.visible {
-      display: grid;
-    }
-
-    .other-category-wrap label {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .category-option {
-      border: none;
-      background: transparent;
-      color: var(--text);
-      text-align: left;
-      padding: 12px 14px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 0.95rem;
-    }
-
-    .category-option:hover,
-    .category-option.is-selected {
-      background: linear-gradient(135deg, rgba(79, 140, 255, 0.35), rgba(142, 90, 255, 0.3));
-      color: #ffffff;
-    }
-
-    .post-form textarea,
-    .post-form input,
-    .post-form select {
-      width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--text);
-      border-radius: 16px;
-      padding: 16px 18px;
-      outline: none;
-      font-size: 0.97rem;
-      transition: border 150ms ease, transform 150ms ease;
-      color-scheme: dark;
-    }
-
-    .post-form input:focus,
-    .post-form textarea:focus,
-    .post-form select:focus {
-      border-color: rgba(79, 140, 255, 0.55);
-      transform: translateY(-1px);
-    }
-
-    .post-form textarea {
-      grid-column: 1 / -1;
-      min-height: 140px;
-      resize: vertical;
-    }
-
-    .post-form input[type="file"] {
-      grid-column: 1 / -1;
-      width: 100%;
-      border: 1px solid rgba(79, 140, 255, 0.35);
-      background: linear-gradient(135deg, #1e7dff, #7b5cff);
-      color: #ffffff;
-      border-radius: 16px;
-      padding: 12px 14px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 14px 34px rgba(79, 140, 255, 0.3);
-    }
-
-    .post-form input[type="file"]::file-selector-button {
-      border: 1px solid rgba(255, 255, 255, 0.24);
-      background: rgba(255, 255, 255, 0.16);
-      color: #ffffff;
-      border-radius: 12px;
-      padding: 10px 14px;
-      margin-right: 12px;
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    .file-note {
-      grid-column: 1 / -1;
-      color: var(--muted);
-      font-size: 0.95rem;
-      margin-top: -8px;
-      margin-bottom: 18px;
-    }
-
-    .media-preview {
-      grid-column: 1 / -1;
-      display: grid;
-      gap: 14px;
-      padding: 18px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .preview-panel {
-      display: grid;
-      gap: 10px;
-      align-items: center;
-      padding: 16px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .preview-panel img,
-    .item-image {
-      max-width: 100%;
-      border-radius: 16px;
-      display: block;
-      object-fit: cover;
-    }
-
-    .item-image {
-      max-height: 280px;
-      margin-bottom: 18px;
-    }
-
-    .attachment-list {
-      display: inline-flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 6px;
-    }
-
-    .attachment-badge {
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(79, 140, 255, 0.12);
-      color: #cfe2ff;
-      font-size: 0.93rem;
-      border: 1px solid rgba(79, 140, 255, 0.18);
-    }
-
-    .ai-panel {
-      grid-column: 1 / -1;
-      background: rgba(6, 14, 30, 0.92);
-      border: 1px solid rgba(79, 140, 255, 0.16);
-      border-radius: 28px;
-      padding: 24px;
-      display: grid;
-      gap: 16px;
-    }
-
-    .ai-panel h3 {
-      margin: 0;
-      font-size: 1.2rem;
-      color: #e4f0ff;
-    }
-
-    .ai-chat {
-      display: grid;
-      gap: 12px;
-      max-height: 300px;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    .ai-chat-message {
-      padding: 16px 18px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.04);
-      line-height: 1.7;
-      font-size: 0.96rem;
-    }
-
-    .ai-chat-message.bot {
-      background: rgba(79, 140, 255, 0.12);
-      color: #eff7ff;
-    }
-
-    .ai-chat-message.user {
-      background: rgba(255, 255, 255, 0.08);
-      color: #e4eaff;
-      justify-self: end;
-    }
-
-    .ai-input-group {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .ai-input-group input {
-      border: 1px solid rgba(159, 163, 170, 0.7);
-      background: #0b1321;
-      color: #fff;
-      border-radius: 20px;
-      padding: 18px 20px;
-      min-height: 60px;
-      outline: none;
-      font-size: 1rem;
-      box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.12);
-    }
-
-    .ai-input-group button {
-      border: none;
-      border-radius: 16px;
-      padding: 14px 22px;
-      background: linear-gradient(135deg, #8e5aff, #4f8cff);
-      color: white;
-      cursor: pointer;
-      transition: transform 150ms ease, box-shadow 150ms ease;
-    }
-
-    .ai-input-group button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 32px rgba(79, 140, 255, 0.22);
-    }
-
-    .post-form button {
-      grid-column: 1 / -1;
-      border: none;
-      border-radius: 18px;
-      padding: 16px 24px;
-      background: linear-gradient(135deg, #4f8cff, #8e5aff);
-      color: white;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: transform 150ms ease, box-shadow 150ms ease;
-    }
-
-    .post-form button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 18px 42px rgba(79, 140, 255, 0.26);
-    }
-
-    .item-feed {
-      margin-top: 28px;
-      display: grid;
-      gap: 18px;
-    }
-
-    .item-card {
-      padding: 28px 32px;
-      border-radius: 28px;
-      background: rgba(9, 17, 35, 0.94);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      display: grid;
       grid-template-columns: 1fr;
-      gap: 20px;
-      align-items: flex-start;
     }
-
-    .item-meta {
-      display: grid;
-      gap: 14px;
-    }
-
-    .item-meta h3 {
-      font-size: 1.3rem;
-      margin-bottom: 6px;
-    }
-
-    .item-meta .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
-    .interest-form,
-    .chat-thread {
-      display: grid;
-      gap: 10px;
-      margin-top: 18px;
-      padding: 16px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .interest-input {
-      width: 100%;
-      min-height: 70px;
-      border: 1px solid rgba(159, 163, 170, 0.3);
-      border-radius: 16px;
-      background: rgba(12, 19, 33, 0.95);
-      color: #fff;
-      padding: 16px;
-      resize: vertical;
-      outline: none;
-      font-size: 0.95rem;
-    }
-
-    .interest-submit,
-    .interest-cta {
-      width: fit-content;
-      border-radius: 18px;
-      border: none;
-      cursor: pointer;
-      padding: 12px 18px;
-      font-weight: 600;
-      background: linear-gradient(135deg, #4f8cff, #8e5aff);
-      color: #fff;
-      transition: transform 150ms ease, box-shadow 150ms ease;
-    }
-
-    .interest-submit:hover,
-    .interest-cta:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 16px 32px rgba(79, 140, 255, 0.18);
-    }
-
-    .chat-thread {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(79, 140, 255, 0.15);
-    }
-
-    .chat-message {
-      padding: 14px 16px;
-      border-radius: 18px;
-      background: rgba(31, 44, 67, 0.95);
-      color: #edf2ff;
-      line-height: 1.65;
-    }
-
-    .chat-message strong {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 0.9rem;
-      color: #a8c3ff;
-    }
-
-    .chat-thread-empty {
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--muted);
-      font-size: 0.95rem;
-      text-align: center;
-    }
-
-    .review-disabled {
-      padding: 16px 18px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.06);
-      color: #ffd166;
-      border: 1px solid rgba(255, 209, 102, 0.18);
-      font-size: 0.95rem;
-      line-height: 1.6;
-    }
-
-    .item-meta .badge span {
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    .item-card p {
-      color: var(--muted);
-      line-height: 1.7;
-    }
-
-    .star-rating {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-
-    .star-rating span {
-      cursor: pointer;
-      font-size: 1.5rem;
-      color: rgba(255, 255, 255, 0.3);
-      transition: color 120ms ease;
-    }
-
-    .star-rating.admin-disabled span {
-      cursor: not-allowed;
-      opacity: 0.7;
-    }
-
-    .star-rating span.filled {
-      color: #ffd166;
-    }
-
-    .rating-label {
-      color: var(--muted);
-      font-size: 0.95rem;
-      white-space: nowrap;
-    }
-
-    .highlight-panel {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 18px;
-      margin-top: 32px;
-    }
-
-    .mini-card {
-      padding: 20px;
-      border-radius: 22px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: var(--text);
-    }
-
-    .mini-card strong {
-      display: block;
-      font-size: 1.34rem;
-      margin-bottom: 8px;
-    }
-
-    .developers {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      margin-top: 20px;
-    }
-
-    .developer-card {
-      padding: 22px;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .developer-card h3 {
-      font-size: 1.1rem;
-      margin-bottom: 8px;
-    }
-
-    .developer-card p {
-      color: var(--muted);
-      line-height: 1.75;
-    }
-
-    footer {
-      text-align: center;
-      margin: 48px auto 24px;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    @media (max-width: 920px) {
-      .hero {
-        grid-template-columns: 1fr;
-      }
-      .hero-visual .panel {
-        grid-template-columns: 1fr;
-      }
-      .highlight-panel,
-      .developers {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .nav-top {
-        gap: 8px;
-      }
-      .search-bar {
-        min-width: 140px;
-      }
-      .nav-links button {
-        font-size: 0.75rem;
-        padding: 5px 9px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <section id="splash">
-    <div class="splash-card">
-      <button type="button" class="splash-logo" id="splashLogo" aria-label="Open Swapify">
-        <img src="Swapify Logo 1.png" alt="Swapify Website logo" />
-      </button>
-      <div class="splash-title">Swapify</div>
-      <div class="splash-subtitle">Tap the glowing logo to enter the Swapify barter page and start posting, trading, and rating securely.</div>
-    </div>
-  </section>
-
-  <div id="authModal" class="auth-modal hidden-page" aria-hidden="true">
-    <div class="auth-card">
-      <div class="auth-header">
-        <div class="auth-tab active" id="signupTab">Sign Up</div>
-        <div class="auth-tab" id="loginTab">Log In</div>
-      </div>
-      <div class="language-selector">
-        <label for="languageSelect">Choose language</label>
-        <select id="languageSelect" class="global-language-select">
-          <option value="en">English</option>
-          <option value="hi">हिन्दी</option>
-          <option value="es">Español</option>
-          <option value="fr">Français</option>
-        </select>
-      </div>
-      <form id="signupForm">
-        <input id="signupEmail" type="email" placeholder="Enter your email" required />
-        <input id="signupPhone" type="text" placeholder="Enter your phone number" required />
-        <input id="signupUsername" type="text" placeholder="Create your username" required />
-        <input id="signupPassword" type="password" placeholder="Create your password" required />
-        <button type="submit" class="auth-submit">Create account</button>
-        <p class="auth-switch">Already have an account? <button type="button" id="switchToLogin">Log In</button></p>
-      </form>
-      <form id="loginForm" class="hidden-page">
-        <input id="loginUsername" type="text" placeholder="Username" required />
-        <input id="loginPassword" type="password" placeholder="Password" required />
-        <button type="submit" class="auth-submit">Log In</button>
-        <p class="auth-switch">No account yet? <button type="button" id="switchToSignup">Sign Up</button></p>
-      </form>
-    </div>
-  </div>
-
-  <header class="hidden-page">
-    <nav>
-      <div class="nav-top">
-        <div class="brand">
-          <span class="dot"></span>
-          <span class="brand-text">Swapify</span>
-          <span class="debug-badge">LOCAL</span>
-          <span class="brand-crown" id="brandCrown" aria-hidden="true">👑</span>
-        </div>
-        <div class="search-bar">
-          <input id="searchInput" type="search" placeholder="Search items or username..." aria-label="Search items or username" data-i18n="searchPlaceholder" />
-        </div>
-        <button class="profile-nav-pill" id="profileNavButton" type="button">Profile</button>
-        <span class="user-info" id="userInfo">Guest</span>
-        <button class="logout-btn hidden-page" id="logoutBtn" type="button">Logout</button>
-        <div class="language-panel">
-          <label for="pageLanguageSelect" class="visually-hidden">Language</label>
-          <select id="pageLanguageSelect" class="global-language-select">
-            <option value="en">English</option>
-            <option value="hi">हिन्दी</option>
-            <option value="es">Español</option>
-            <option value="fr">Français</option>
-          </select>
-        </div>
-      </div>
-      <div class="nav-links">
-        <button class="nav-btn" type="button" data-url="#post-it" data-i18n="navPostIt">Post It</button>
-        <button class="nav-btn" type="button" data-url="profile.html" data-i18n="navProfile">Profile</button>
-        <button class="nav-btn" type="button" data-url="premium.html" data-i18n="navPremium">Premium Membership</button>
-        <button class="nav-btn" type="button" data-url="#developers" data-i18n="navDevelopers">Meet the Developers</button>
-        <button class="nav-btn" type="button" data-url="terms-and-conditions.html">Terms & Conditions</button>
-      </div>
-    </nav>
-  </header>
-
-  <main class="hidden-page">
-    <section class="hero">
-      <div class="hero-copy">
-        <div class="section-title">
-          <div>
-            <h2>Welcome to Swapify</h2>
-            <span>High-tech barter marketplace</span>
-          </div>
-          <div class="stat">
-            <strong>9.9/10</strong>
-            <span>Website rating</span>
-          </div>
-        </div>
-        <div class="language-panel hero-language">
-          <label for="pageLanguageSelectHero">Site language</label>
-          <select id="pageLanguageSelectHero" class="global-language-select">
-            <option value="en">English</option>
-            <option value="hi">हिन्दी</option>
-            <option value="es">Español</option>
-            <option value="fr">Français</option>
-          </select>
-        </div>
-        <h2 data-i18n="heroTitle">The next generation of item swapping powered by smart trust and instant community exchange.</h2>
-        <p data-i18n="heroDescription">Swapify unites people who want to trade things instead of buying new. Post your item, discover offers, and swap goods directly with trusted members.</p>
-        <div class="quote" data-i18n="heroQuote">
-          "Swap smarter, save resources, and build community — one exchange at a time."
-        </div>
-        <div class="highlight" data-i18n="heroHighlight">
-          <span>Advanced user flow • Real-time posting • Secure trade preview</span>
-        </div>
-        <div class="hero-actions">
-          <button type="button" id="openProfileBtn" class="primary-action">Go to Profile</button>
-        </div>
-      </div>
-
-      <div class="hero-visual">
-        <div class="panel">
-          <div class="card">
-            <h3>What Swapify does</h3>
-            <p>Swapify brings a sleek barter interface to your desktop. Add items, browse requests, and manage trades in a modern, secure experience.</p>
-          </div>
-          <div class="card">
-            <h3>How it works</h3>
-            <p>Create a listing, describe the item you want to trade, and let the community make offers. Every post is stored locally for instant browsing.</p>
-          </div>
-          <div class="card">
-            <h3>Built for modern swapping</h3>
-            <p>We serve collectors, gamers, tech lovers, and everyday users. The platform is designed for speed, clarity, and confident exchanges.</p>
-          </div>
-          <div class="card">
-            <h3>Why choose Swapify?</h3>
-            <p>Because swapping is sustainable, economical, and rewarding. Enjoy a design-forward experience with high-end visuals and smooth interactions.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="dashboard-grid">
-      <section id="post-it">
-        <div class="section-title">
-          <h2 data-i18n="postSectionTitle">Post to Trade</h2>
-          <span data-i18n="postSectionSubtitle">List your item with fast posting tools</span>
-        </div>
-        <div class="intro-card">
-          <p>Use the form below to submit a barter listing. Swapify instantly stores the details and shows your item in the live feed so everyone can see what you want to trade.</p>
-        </div>
-        <form class="post-form" id="postForm">
-          <input type="text" id="itemName" placeholder="Item name" required />
-          <div class="category-picker">
-            <button class="category-trigger" id="itemCategoryTrigger" type="button">
-              <span>Choose a category</span>
-              <span class="chevron">▾</span>
-            </button>
-            <div class="category-menu hidden-page" id="itemCategoryMenu">
-              <button type="button" class="category-option" data-value="Electronics">Electronics</button>
-              <button type="button" class="category-option" data-value="Books">Books</button>
-              <button type="button" class="category-option" data-value="Fashion">Fashion</button>
-              <button type="button" class="category-option" data-value="Home">Home</button>
-              <button type="button" class="category-option" data-value="Collectibles">Collectibles</button>
-              <button type="button" class="category-option" data-value="Other">Other</button>
-            </div>
-            <input type="hidden" id="itemCategory" />
-          </div>
-          <div class="other-category-wrap" id="otherCategoryWrap">
-            <label for="otherCategoryText">What is it in other? Please type below.</label>
-            <input type="text" id="otherCategoryText" placeholder="Type what your item is here..." />
-          </div>
-          <input type="text" id="itemCondition" placeholder="Condition (e.g. Like New, Good, Old)" required />
-          <input type="text" id="itemExchange" placeholder="What you'd like in exchange" required />
-          <input type="file" id="itemImage" accept="image/*" />
-          <div class="file-note">Attach one image to show your listing better. The image preview appears below.</div>
-          <div class="media-preview">
-            <div class="preview-panel" id="imagePreview">
-              <strong>Image preview</strong>
-              <span>No image selected yet.</span>
-            </div>
-            <div class="preview-panel" id="docPreview">
-              <strong>Document ready</strong>
-              <span>No document selected yet.</span>
-            </div>
-          </div>
-          <textarea id="itemDescription" placeholder="Describe your item and ideal trade" required></textarea>
-          <button type="submit">Publish Listing</button>
-        </form>
-
-        <div class="item-feed" id="itemFeed">
-          <div class="item-card">
-            <div class="item-meta">
-              <h3>Community Ready</h3>
-              <div class="badge">Category: <span>Sample Listing</span></div>
-              <p>Start posting your own item to see live barter offers here.</p>
-              <div class="star-rating" data-listing-id="sample" data-rating="0" data-rating-count="0">
-                <span data-star="1">★</span>
-                <span data-star="2">★</span>
-                <span data-star="3">★</span>
-                <span data-star="4">★</span>
-                <span data-star="5">★</span>
-              </div>
-              <div class="rating-summary">No ratings yet</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="adminPanel" class="hidden-page">
-        <div class="section-title">
-          <div>
-            <h2>Admin Controls</h2>
-            <span>Only admins can send notices, remove users, and rename their admin username.</span>
-          </div>
-        </div>
-        <div class="premium-controls">
-          <button id="changeUsernameBtn" type="button">Change admin username</button>
-          <button id="sendNoticeBtn" type="button">Send community notice</button>
-          <button id="removeUserBtn" type="button">Remove user</button>
-        </div>
-        <div id="adminNoticeArea" class="intro-card hidden-page"></div>
-        <div class="admin-user-list" id="adminUserList"></div>
-
-        <h3 style="margin-top: 32px; color: #ff6b6b; font-size: 1.2rem;">Users with Bad Behavior</h3>
-        <div class="admin-user-list" id="adminBadList"></div>
-
-        <h3 style="margin-top: 32px; color: #62d6a7; font-size: 1.2rem;">Users with Excellent Behavior</h3>
-        <div class="admin-user-list" id="adminGoodList"></div>
-      </section>
-
-      <section id="swapify-ai">
-        <div class="section-title">
-          <h2>Swapify AI</h2>
-          <span>Your smart barter assistant</span>
-        </div>
-        <div class="ai-panel">
-          <h3>Ask Swapify AI for listing tips & description generation</h3>
-          <div class="ai-chat" id="aiChat">
-            <div class="ai-chat-message bot">Swapify AI is ready to help with anything related to posting, trading, descriptions, images, documents, safety, ratings, or membership. I answer every question, and I can generate a listing description on demand. For premium trades, I will tell you when a Swapify Premium membership is required.</div>
-          </div>
-          <div class="ai-input-group">
-            <input id="aiInput" type="text" placeholder="Ask Swapify AI a question or request a description..." />
-            <button id="aiSend" type="button">Send</button>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <section id="premium">
-      <div class="section-title premium-title">
-        <h2 class="gold-text" data-i18n="premiumTitle">Premium Membership</h2>
-        <span data-i18n="premiumSubtitle">Exclusive access for high-value trading</span>
-      </div>
-      <div class="intro-card">
-        <p>Unlock the premium tier to trade expensive items and access elite Swapify features. Premium gives you access to yacht, jet, plane, house, diamond, gold, jewellery, submarine, bunker, island, castle, masterpiece art, and other luxury trades.</p>
-        <p class="premium-price">Rs. 99 / Mn</p>
-        <p>Click the button below to activate premium membership, and use the link to review the full benefits and rules in a new tab.</p>
-        <div class="premium-controls">
-          <span id="premiumStatus" class="premium-status">Premium inactive</span>
-          <button id="premiumToggle" type="button" class="premium-action">Activate Premium</button>
-        </div>
-        <div class="premium-payment">
-          <a id="openPaymentLink" href="#paymentForm" class="premium-pay-link">Click to pay here</a>
-          <form id="paymentForm" class="payment-form hidden-page" autocomplete="off">
-            <fieldset>
-              <label for="paymentFullName">Full Name</label>
-              <input id="paymentFullName" type="text" placeholder="Full Name" required />
-              <label for="paymentCountry">Country</label>
-              <input id="paymentCountry" type="text" placeholder="Country" required />
-              <label for="paymentState">State</label>
-              <input id="paymentState" type="text" placeholder="State" required />
-              <label for="paymentDistrict">District</label>
-              <input id="paymentDistrict" type="text" placeholder="District" required />
-              <label for="paymentAddress">Home address</label>
-              <input id="paymentAddress" type="text" placeholder="Home address" required />
-              <label for="paymentZip">Zip code of district</label>
-              <input id="paymentZip" type="text" placeholder="Zip code of district" required />
-              <label for="paymentCardNumber">Card number</label>
-              <input id="paymentCardNumber" type="text" placeholder="1234 5678 9012 3456" inputmode="numeric" required />
-              <label for="paymentExpiry">Expiration date</label>
-              <input id="paymentExpiry" type="text" placeholder="MM/YY" required />
-              <label for="paymentSecurityCode">Security code</label>
-              <input id="paymentSecurityCode" type="text" placeholder="CVV" inputmode="numeric" required />
-            </fieldset>
-            <button type="submit" class="payment-submit">Pay Rs. 99</button>
-          </form>
-          <p class="payment-note">Complete the form and submit to activate premium membership.</p>
-        </div>
-        <a class="premium-action" href="premium.html" target="_blank" rel="noopener noreferrer">View Premium Membership</a>
-      </div>
-    </section>
-
-    <section id="profile">
-      <div class="section-title">
-        <div>
-          <h2>My Profile</h2>
-          <span>View your account information and uploaded trade posts</span>
-        </div>
-      </div>
-      <div class="intro-card" id="profileSummary">
-        <p>Log in or create an account to see your profile details and the items you've posted on Swapify.</p>
-      </div>
-      <div class="item-feed" id="profileFeed"></div>
-    </section>
-
-    <section id="developers">
-      <div class="section-title">
-        <h2>Developers</h2>
-        <p>Meet the creators of Swapify</p>
-      </div>
-      <div class="highlight-panel">
-        <div class="mini-card">
-          <strong>Shreshth Tyagi</strong>
-          <p>Lead interface designer developing the modern UI, responsive layout, and immersive navigation experience.</p>
-          <span class="mini-badge">Admin 👑</span>
-        </div>
-        <div class="mini-card">
-          <strong>Siddharth Chhetri Reule</strong>
-          <p>Core features architect focused on interaction design, listing workflows, and polished user functionality.</p>
-          <span class="mini-badge">Admin 👑</span>
-        </div>
-        <div class="mini-card">
-          <strong>Swapify Vision</strong>
-          <p>A fully connected bartering hub with a polished look and advanced experience for swapping, sharing, and saving.</p>
-        </div>
-      </div>
-      <div class="developers">
-        <div class="developer-card">
-          <h3>Shreshth Tyagi</h3>
-          <p>Design strategist with a passion for making website look sleek, trustworthy, and smart.</p>
-        </div>
-        <div class="developer-card">
-          <h3>Siddharth Chettri Reule</h3>
-          <p>Experience engineer specializing in responsive interactions, user-driven posting forms, and polished web flows.</p>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    Built as a hi-tech barter portal with interactive listing support and a strong 9.9/10 rating.
-    <div style="margin-top: 10px;">
-      <a href="terms-and-conditions.html" target="_blank" rel="noopener noreferrer" style="color: #4f8cff; text-decoration: none; font-weight: 600;">Terms & Conditions</a>
-    </div>
-  </footer>
-
-  <script type="module">
-    const apiBase = 'https://siddharth-dev-backend.onrender.com';
-    const currentUserKey = 'swapify-current-user';
-    const enteredAppKey = 'swapify-entered-app';
-    const searchInput = document.getElementById('searchInput');
-    const itemFeed = document.getElementById('itemFeed');
-    const itemImage = document.getElementById('itemImage');
-    const itemDocument = document.getElementById('itemDocument');
-    const imagePreview = document.getElementById('imagePreview');
-    const docPreview = document.getElementById('docPreview');
-    const postForm = document.getElementById('postForm');
-    const itemCategoryInput = document.getElementById('itemCategory');
-    const itemCategoryTrigger = document.getElementById('itemCategoryTrigger');
-    const itemCategoryMenu = document.getElementById('itemCategoryMenu');
-    const otherCategoryWrap = document.getElementById('otherCategoryWrap');
-    const otherCategoryText = document.getElementById('otherCategoryText');
-    const aiSendButton = document.getElementById('aiSend');
-    const aiInput = document.getElementById('aiInput');
-    const aiChat = document.getElementById('aiChat');
-    const premiumToggle = document.getElementById('premiumToggle');
-    const changeUsernameBtn = document.getElementById('changeUsernameBtn');
-    const sendNoticeBtn = document.getElementById('sendNoticeBtn');
-    const removeUserBtn = document.getElementById('removeUserBtn');
-    const openPaymentLink = document.getElementById('openPaymentLink');
-    const paymentForm = document.getElementById('paymentForm');
-    const subscriptionForm = document.getElementById('paymentForm');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const signupForm = document.getElementById('signupForm');
-    const loginForm = document.getElementById('loginForm');
-    const profileSummary = document.getElementById('profileSummary');
-    const profileFeed = document.getElementById('profileFeed');
-    const splash = document.getElementById('splash');
-    const splashLogo = document.getElementById('splashLogo');
-    const headerEl = document.querySelector('header');
-    const mainEl = document.querySelector('main');
-
-    let currentUser = JSON.parse(localStorage.getItem(currentUserKey) || 'null');
-    let premiumAccess = currentUser?.premium || false;
-
-    const translations = {
-      en: {
-        navPostIt: 'Post It',
-        navProfile: 'Profile',
-        navPremium: 'Premium Membership',
-        navDevelopers: 'Meet the Developers',
-        heroTitle: 'The next generation of item swapping powered by smart trust and instant community exchange.',
-        heroDescription: 'Swapify unites people who want to trade things instead of buying new. Post your item, discover offers, and swap goods directly with trusted members.',
-        heroQuote: '"Swap smarter, save resources, and build community — one exchange at a time."',
-        heroHighlight: 'Advanced user flow • Real-time posting • Secure trade preview',
-        postSectionTitle: 'Post to Trade',
-        postSectionSubtitle: 'List your item with fast posting tools',
-        premiumTitle: 'Premium Membership',
-        premiumSubtitle: 'Exclusive access for high-value trading',
-        searchPlaceholder: 'Search items or username...'
-      },
-      es: {
-        navPostIt: 'Publicar',
-        navProfile: 'Perfil',
-        navPremium: 'Membresía Premium',
-        navDevelopers: 'Desarrolladores',
-        heroTitle: 'La próxima generación de intercambio de artículos impulsada por confianza inteligente e intercambio comunitario instantáneo.',
-        heroDescription: 'Swapify une a las personas que quieren intercambiar cosas en lugar de comprar nuevas. Publica tu artículo, descubre ofertas y cambia bienes directamente con miembros de confianza.',
-        heroQuote: '"Intercambia de manera más inteligente, ahorra recursos y construye comunidad — un intercambio a la vez."',
-        heroHighlight: 'Flujo avanzado • Publicación en tiempo real • Vista previa segura',
-        postSectionTitle: 'Publicar para intercambiar',
-        postSectionSubtitle: 'Agrega tu artículo con herramientas rápidas de publicación',
-        premiumTitle: 'Membresía Premium',
-        premiumSubtitle: 'Acceso exclusivo para intercambios de alto valor',
-        searchPlaceholder: 'Buscar artículos o usuario...'
-      },
-      hi: {
-        navPostIt: 'पोस्ट करें',
-        navProfile: 'प्रोफ़ाइल',
-        navPremium: 'प्रीमियम सदस्यता',
-        navDevelopers: 'डेवलपर्स',
-        heroTitle: 'स्मार्ट ट्रस्ट और त्वरित सामुदायिक विनिमय द्वारा संचालित आइटम स्वैपिंग की अगली पीढ़ी।',
-        heroDescription: 'Swapify उन लोगों को जोड़ता है जो नई चीजें खरीदने के बजाय व्यापार करना चाहते हैं। अपना आइटम पोस्ट करें, ऑफ़र खोजें, और विश्वसनीय सदस्यों के साथ सीधे व्यापार करें।',
-        heroQuote: '"अधिक समझदारी से स्वैप करें, संसाधनों को बचाएं, और समुदाय बनाएं — एक बार्तालाप में।"',
-        heroHighlight: 'उन्नत उपयोगकर्ता प्रवाह • वास्तविक समय पोस्टिंग • सुरक्षित व्यापार पूर्वावलोकन',
-        postSectionTitle: 'व्यापार के लिए पोस्ट करें',
-        postSectionSubtitle: 'तेज़ पोस्टिंग टूल से अपना आइटम सूचीबद्ध करें',
-        premiumTitle: 'प्रीमियम सदस्यता',
-        premiumSubtitle: 'उच्च-मूल्य ट्रेडिंग के लिए विशेष पहुंच',
-        searchPlaceholder: 'सामान या उपयोगकर्ता नाम खोजें...'
-      },
-      fr: {
-        navPostIt: 'Publier',
-        navProfile: 'Profil',
-        navPremium: 'Adhésion Premium',
-        navDevelopers: 'Développeurs',
-        heroTitle: 'La prochaine génération d\'échange d\'articles alimentée par une confiance intelligente et un échange communautaire instantané.',
-        heroDescription: 'Swapify réunit les personnes qui veulent échanger des objets au lieu d\'en acheter de nouveaux. Publiez votre article, découvrez des offres et échangez directement avec des membres de confiance.',
-        heroQuote: '"Échangez plus intelligemment, économisez des ressources et construisez une communauté — un échange à la fois."',
-        heroHighlight: 'Flux avancé • Publication en temps réel • Aperçu sécurisé',
-        postSectionTitle: 'Publier pour échanger',
-        postSectionSubtitle: 'Listez votre article avec des outils de publication rapides',
-        premiumTitle: 'Adhésion Premium',
-        premiumSubtitle: 'Accès exclusif aux échanges de grande valeur',
-        searchPlaceholder: 'Rechercher des articles ou un utilisateur...'
-      }
-    };
-
-    let currentLanguage = localStorage.getItem('swapify-language') || 'en';
-
-    const expensiveTradeItems = ['car', 'house', 'yacht', 'jet', 'plane', 'boat', 'diamonds', 'diamond', 'gold', 'jewellery', 'jewelry', 'submarine', 'bunker', 'island', 'castle', 'masterpiece', 'art'];
-    const ADMIN_PASSWORD = '12367';
-
-    async function apiFetch(path, options = {}) {
-      let response;
-      try {
-        const formattedPath = path.startsWith('/api') ? path : `/api${path}`;
-        const cleanBase = (typeof apiBase !== 'undefined' ? apiBase : '').replace(/\/+$/, '');
-
-        response = await fetch(`${cleanBase}${formattedPath}`, {
-          method: options.method || 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(options.headers || {})
-          },
-          ...options
-        });
-
-        const contentType = response.headers.get('content-type') || '';
-        const isJson = contentType.includes('application/json');
-        const rawBody = await response.text();
-        let parsedBody = null;
-
-        if (isJson && rawBody) {
-          try {
-            parsedBody = JSON.parse(rawBody);
-          } catch (parseError) {
-            console.error(`Response from ${path} claimed to be JSON but failed to parse:`, rawBody.slice(0, 300));
-          }
-        }
-
-        if (!response.ok) {
-          const message = (parsedBody && (parsedBody.error || parsedBody.message)) || (rawBody && rawBody.slice(0, 300)) || response.statusText || `Request failed with status ${response.status}`;
-          throw new Error(`(${response.status}) ${message}`);
-        }
-
-        if (!isJson || parsedBody === null) {
-          console.error(`Expected JSON from ${path} but got content-type "${contentType}". Response started with:`, rawBody.slice(0, 300));
-          throw new Error(
-            `The server did not return JSON for "${path}" (got "${contentType || 'unknown content type'}" instead). This usually means that route is not implemented on the backend, or the backend is serving the frontend page instead of an API response for this request.`
-          );
-        }
-
-        return parsedBody;
-      } catch (error) {
-        console.error('API Error:', error);
-        throw error;
-      }
-    }
-
-    async function getItems() {
-      return apiFetch('/items');
-    }
-
-    async function createItem(item) {
-      return apiFetch('/items', {
-        method: 'POST',
-        body: JSON.stringify(item)
-      });
-    }
-
-    async function submitTradeInterest(listingId, message) {
-      return apiFetch(`/items/${encodeURIComponent(listingId)}/interest`, {
-        method: 'POST',
-        body: JSON.stringify({
-          message,
-          from: currentUser?.username || 'Guest'
-        })
-      });
-    }
-
-    async function getAccounts() {
-      return apiFetch('/accounts');
-    }
-
-    async function createAccount(account) {
-      return apiFetch('/accounts', {
-        method: 'POST',
-        body: JSON.stringify(account)
-      });
-    }
-
-    async function loginUser(credentials) {
-      return apiFetch('/login', {
-        method: 'POST',
-        body: JSON.stringify(credentials)
-      });
-    }
-
-    async function updateAccount(username, updatePayload) {
-      return apiFetch(`/accounts/${encodeURIComponent(username)}`, {
-        method: 'PUT',
-        body: JSON.stringify(updatePayload)
-      });
-    }
-
-    async function deleteAccount(username) {
-      return apiFetch(`/accounts/${encodeURIComponent(username)}`, {
-        method: 'DELETE'
-      });
-    }
-
-    async function addReview(listingId, rating, reviewText) {
-      return apiFetch('/review', {
-        method: 'POST',
-        body: JSON.stringify({ listingId, rating, reviewText })
-      });
-    }
-
-    async function setPremium(username, isPremium) {
-      return apiFetch('/premium', {
-        method: 'POST',
-        body: JSON.stringify({ username, premium: isPremium })
-      });
-    }
-
-    function setCurrentUser(user) {
-      currentUser = user;
-      premiumAccess = user?.premium || false;
-      localStorage.setItem(currentUserKey, JSON.stringify(user));
-      updateAuthUI();
-      updatePremiumUI();
-    }
-
-    function clearCurrentUser() {
-      currentUser = null;
-      premiumAccess = false;
-      localStorage.removeItem(currentUserKey);
-      updateAuthUI();
-      updatePremiumUI();
-    }
-
-    function getCurrentUser() {
-      return currentUser;
-    }
-
-    function hasPremiumAccess() {
-      return (currentUser && (currentUser.premium || currentUser.admin)) || premiumAccess;
-    }
-
-    function isAdminPassword(password) {
-      return String(password).trim() === ADMIN_PASSWORD;
-    }
-
-    function includesExpensiveItem(text) {
-      const normalized = String(text || '').toLowerCase();
-      return expensiveTradeItems.some(item => normalized.includes(item));
-    }
-
-    function createAiMessage(text, sender = 'bot') {
-      const message = document.createElement('div');
-      message.className = `ai-chat-message ${sender}`;
-      message.textContent = text;
-      return message;
-    }
-
-    function updatePreview(target, label, content) {
-      if (!target) return;
-      target.innerHTML = `<strong>${label}</strong><span>${content}</span>`;
-    }
-
-    function generateId() {
-      return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    }
-
-    function updateStarContainer(container, rating) {
-      const stars = container.querySelectorAll('span[data-star]');
-      stars.forEach(star => {
-        const value = Number(star.dataset.star);
-        star.classList.toggle('filled', value <= rating);
-      });
-      container.dataset.selectedRating = rating;
-      const summary = container.nextElementSibling;
-      if (summary && summary.classList.contains('rating-summary')) {
-        const count = Number(container.dataset.ratingCount) || 0;
-        summary.textContent = count ? `${rating} stars from ${count} people` : 'No ratings yet';
-      }
-    }
-
-    function renderReviewList(container, listingId, ratingCount, averageRating, reviews = []) {
-      if (!container) return;
-      if (!reviews || !reviews.length) {
-        container.innerHTML = '<div class="review-card"><strong>No reviews yet</strong><p>Be the first to leave anonymous feedback.</p></div>';
-        return;
-      }
-      container.innerHTML = reviews.map(review => `
-        <div class="review-card">
-          <strong>Anonymous review • ${review.rating} stars</strong>
-          <p>${review.text}</p>
-        </div>
-      `).join('');
-    }
-
-    function getUserRatingStats(username, items) {
-      const normalized = String(username || '').trim().toLowerCase();
-      const userItems = (items || []).filter(item => String(item.postedBy || '').trim().toLowerCase() === normalized);
-      if (!userItems.length) return { avgRating: 0, totalRatings: 0, badCritics: 0, maxRating: 0 };
-      const totalRatings = userItems.reduce((sum, item) => sum + (item.ratingCount || 0), 0);
-      const totalSum = userItems.reduce((sum, item) => sum + (item.ratingSum || 0), 0);
-      const avgRating = totalRatings > 0 ? Math.round(totalSum / totalRatings) : 0;
-      const badCritics = userItems.reduce((sum, item) => {
-        const reviews = item.reviews || [];
-        return sum + reviews.filter(r => r.rating <= 2).length;
-      }, 0);
-      const maxRating = userItems.length > 0 ? Math.max(...userItems.map(item => Number(item.ratingCount || 0) ? Number(item.ratingSum || 0) / Number(item.ratingCount || 1) : 0)) : 0;
-      return { avgRating, totalRatings, badCritics, maxRating: Math.round(maxRating) };
-    }
-
-    async function renderItemFeed(items, searchTerm = '') {
-      const normalized = String(searchTerm || '').trim().toLowerCase();
-      itemFeed.innerHTML = '';
-      const filtered = normalized
-        ? (items || []).filter(item =>
-            String(item.name || '').toLowerCase().includes(normalized) ||
-            String(item.category || '').toLowerCase().includes(normalized) ||
-            String(item.postedBy || '').toLowerCase().includes(normalized) ||
-            String(item.description || '').toLowerCase().includes(normalized)
-          )
-        : items;
-
-      if (!filtered || !filtered.length) {
-        itemFeed.innerHTML = '<div class="item-card"><div class="item-meta"><h3>No listings found</h3><p>Try another product name or username.</p></div></div>';
-        return;
-      }
-
-      filtered.forEach(item => itemFeed.appendChild(createItemCard(item)));
-    }
-
-    async function loadItems(searchTerm = '') {
-      try {
-        const items = await getItems();
-        await renderItemFeed(items, searchTerm);
-        renderProfileSection(items);
-      } catch (error) {
-        console.error(error);
-        itemFeed.innerHTML = '<div class="item-card"><div class="item-meta"><h3>Could not load items</h3><p>Please reload the page or try again later.</p></div></div>';
-        profileFeed.innerHTML = '<div class="item-card"><div class="item-meta"><h3>Could not load profile posts</h3><p>Try refreshing the page.</p></div></div>';
-      }
-    }
-
-    function attachRatingEvents(card) {
-      const container = card.querySelector('.star-rating');
-      if (!container) return;
-      const isAdminListing = container.dataset.postedByAdmin === 'true';
-      const listingId = container.dataset.listingId;
-      updateStarContainer(container, Number(container.dataset.rating) || 0);
-
-      if (!isAdminListing) {
-        const stars = container.querySelectorAll('span[data-star]');
-        stars.forEach(star => {
-          star.addEventListener('click', () => {
-            const rating = Number(star.dataset.star);
-            updateStarContainer(container, rating);
-          });
-          star.addEventListener('mouseover', () => {
-            const hoverValue = Number(star.dataset.star);
-            const starsHover = container.querySelectorAll('span[data-star]');
-            starsHover.forEach(s => {
-              s.classList.toggle('filled', Number(s.dataset.star) <= hoverValue);
-            });
-          });
-          star.addEventListener('mouseout', () => {
-            updateStarContainer(container, Number(container.dataset.rating) || 0);
-          });
-        });
-      }
-
-      const reviewForm = card.querySelector('.review-form');
-      const reviewList = card.querySelector('.review-list');
-      const ratingCount = Number(container.dataset.ratingCount) || 0;
-      const ratingValue = Number(container.dataset.rating) || 0;
-      renderReviewList(reviewList, listingId, ratingCount, ratingValue, JSON.parse(card.dataset.reviews || '[]'));
-
-      if (!isAdminListing && reviewForm) {
-        const textarea = reviewForm.querySelector('textarea');
-        const submitButton = reviewForm.querySelector('.review-submit');
-        submitButton.addEventListener('click', async () => {
-          const rating = Number(container.dataset.selectedRating) || Number(container.dataset.rating) || 0;
-          const reviewText = textarea.value.trim();
-          if (!rating) {
-            alert('Please select a star rating before submitting your review.');
-            return;
-          }
-          if (!reviewText) {
-            alert('Please write your anonymous review before submitting.');
-            return;
-          }
-          try {
-            const updatedItem = await addReview(listingId, rating, reviewText);
-            container.dataset.ratingCount = updatedItem.ratingCount;
-            container.dataset.rating = Math.round(updatedItem.ratingSum / Math.max(updatedItem.ratingCount || 1, 1));
-            updateStarContainer(container, Number(container.dataset.rating));
-            renderReviewList(reviewList, listingId, updatedItem.ratingCount, Number(container.dataset.rating), updatedItem.reviews);
-            textarea.value = '';
-          } catch (error) {
-            alert('Unable to submit review. Please try again later.');
-          }
-        });
-      }
-    }
-
-    function renderChatSection(chats) {
-      if (!chats || !chats.length) {
-        return '<div class="chat-thread-empty">No trade request chats yet. Interested people will appear here once they send a message.</div>';
-      }
-      return `
-        <div class="chat-thread">
-          ${chats.slice(-3).map(chat => `
-            <div class="chat-message">
-              <strong>${chat.from || 'Guest'} • ${chat.createdAt ? new Date(chat.createdAt).toLocaleString() : 'No time'}</strong>
-              <p>${chat.message}</p>
-            </div>
-          `).join('')}
-          ${chats.length > 3 ? `<div class="chat-thread-empty">Showing last 3 of ${chats.length} messages. Refresh to load updates.</div>` : ''}
-        </div>
-      `;
-    }
-
-    function normalizeUsername(username) {
-      return String(username || '').trim().toLowerCase();
-    }
-
-    function createItemCard(data, options = {}) {
-      const { showChats = false } = options;
-      const card = document.createElement('div');
-      card.className = 'item-card';
-      card.dataset.reviews = JSON.stringify(data.reviews || []);
-      const imageSection = data.image ? `<img class="item-image" src="${data.image}" alt="${data.name}" />` : '';
-      const attachmentSection = data.documentName ? `<div class="attachment-list"><div class="attachment-badge">Document: ${data.documentName}</div></div>` : '';
-      const ownerName = data.postedBy || 'Guest';
-      const postedLabel = `<div class="badge">Posted by: <span>${ownerName}${data.postedByAdmin ? ' 👑 Admin' : ''}</span></div>`;
-      const crownBadge = (data.premiumOwner || data.postedByAdmin || (data.postedBy === 'you' && hasPremiumAccess())) ? `<div class="crown-badge">${data.postedByAdmin ? '👑 Admin post' : '👑 Premium member'}</div>` : '';
-      const averageRating = data.ratingCount ? Math.round(data.ratingSum / data.ratingCount) : 0;
-      const ratingSummary = data.ratingCount ? `${averageRating} stars from ${data.ratingCount} people` : 'No ratings yet';
-      const reviewSection = data.postedByAdmin ? `<div class="review-disabled">Admin listings cannot receive new reviews.</div>` : `
-          <div class="review-form">
-            <textarea placeholder="Write your anonymous review here..."></textarea>
-            <button type="button" class="review-submit">Submit review</button>
-          </div>
-        `;
-      const tradeRequestSummary = showChats && data.interestedChats ? `<div class="badge">Trade requests: <span>${data.interestedChats.length}</span></div>` : '';
-      const chatSection = showChats ? renderChatSection(data.interestedChats || []) : '';
-      const isOwner = currentUser && normalizeUsername(data.postedBy) === normalizeUsername(currentUser.username);
-      const showInterestForm = !showChats && currentUser && !isOwner;
-      const interestSection = showInterestForm ? `
-          <div class="interest-form">
-            <textarea class="interest-input" data-listing-id="${data.id}" placeholder="Write a short trade request message..." rows="2"></textarea>
-            <button type="button" class="interest-submit" data-listing-id="${data.id}">Request trade</button>
-          </div>
-        ` : (!showChats && !currentUser ? `<div class="interest-cta">Log in to send a trade request and connect with the seller.</div>` : '');
-
-      card.innerHTML = `
-        <div class="item-meta">
-          ${imageSection}
-          <h3>${data.name}</h3>
-          ${crownBadge}
-          <div class="badge">Category: <span>${data.category}</span></div>
-          <div class="badge">Condition: <span>${data.condition}</span></div>
-          <div class="badge">Wants: <span>${data.exchange}</span></div>
-          ${tradeRequestSummary}
-          <p>${data.description}</p>
-          ${attachmentSection}
-          ${postedLabel}
-          <div class="star-rating ${data.postedByAdmin ? 'admin-disabled' : ''}" data-listing-id="${data.id}" data-rating="${averageRating}" data-rating-count="${data.ratingCount || 0}" data-selected-rating="0" data-posted-by-admin="${data.postedByAdmin ? 'true' : 'false'}">
-            <span data-star="1">★</span>
-            <span data-star="2">★</span>
-            <span data-star="3">★</span>
-            <span data-star="4">★</span>
-            <span data-star="5">★</span>
-          </div>
-          <div class="rating-summary">${ratingSummary}</div>
-          ${reviewSection}
-          <div class="review-list"></div>
-          ${interestSection}
-          ${chatSection}
-        </div>
-      `;
-      attachRatingEvents(card);
-      attachInterestEvents(card);
-      return card;
-    }
-
-    function attachInterestEvents(card) {
-      const submitButton = card.querySelector('.interest-submit');
-      if (!submitButton) return;
-      submitButton.addEventListener('click', async () => {
-        const listingId = submitButton.dataset.listingId;
-        const textarea = card.querySelector(`.interest-input[data-listing-id="${listingId}"]`);
-        const message = textarea ? textarea.value.trim() : '';
-        if (!message) {
-          alert('Please write a message to request this trade.');
-          return;
-        }
-        try {
-          await submitTradeInterest(listingId, message);
-          if (textarea) textarea.value = '';
-          alert('Trade request sent. The seller can review this in their profile chat feed.');
-        } catch (error) {
-          alert('Unable to send trade request: ' + error.message);
-        }
-      });
-    }
-
-    async function fetchLocalAccounts() {
-      try {
-        return await getAccounts();
-      } catch (error) {
-        console.error(error);
-        return [];
-      }
-    }
-
-    async function getUserAccount(username) {
-      const accounts = await fetchLocalAccounts();
-      return accounts.find(acc => String(acc.username || '').trim().toLowerCase() === String(username || '').trim().toLowerCase()) || null;
-    }
-
-    async function renderBadUserList() {
-      const user = getCurrentUser();
-      const badList = document.getElementById('adminBadList');
-      if (!badList || !user || !user.admin) {
-        if (badList) badList.innerHTML = '';
-        return;
-      }
-      const items = await getItems();
-      const accounts = await fetchLocalAccounts();
-      const badUsers = accounts.filter(acc => {
-        if (acc.admin) return false;
-        const stats = getUserRatingStats(acc.username, items);
-        return stats.avgRating < 2 || stats.badCritics > 0;
-      });
-      if (!badUsers.length) {
-        badList.innerHTML = '<div class="admin-user-card"><strong>No problematic users.</strong><span>Users with ratings below 2 stars or bad reviews appear here.</span></div>';
-        return;
-      }
-      badList.innerHTML = '';
-      badUsers.forEach(badUser => {
-        const card = document.createElement('div');
-        card.className = 'admin-user-card bad-user-card';
-        card.style.borderColor = 'rgba(255, 107, 107, 0.3)';
-
-        const title = document.createElement('strong');
-        title.style.color = '#ff6b6b';
-        title.textContent = badUser.username;
-
-        const stats = document.createElement('span');
-        const itemStats = getUserRatingStats(badUser.username, items);
-        stats.textContent = `Email: ${badUser.email || 'N/A'} | Avg Rating: ${itemStats.avgRating}/5 | Bad Critics: ${itemStats.badCritics} | Total Ratings: ${itemStats.totalRatings}`;
-
-        const actions = document.createElement('div');
-        actions.className = 'admin-user-actions';
-        const warningButton = document.createElement('button');
-        warningButton.type = 'button';
-        warningButton.style.background = 'linear-gradient(135deg, #ff6b6b, #ff7f7f)';
-        warningButton.textContent = 'Send Warning Notice';
-        warningButton.addEventListener('click', () => sendWarningNotice(badUser.username));
-        actions.appendChild(warningButton);
-
-        card.appendChild(title);
-        card.appendChild(stats);
-        card.appendChild(actions);
-        badList.appendChild(card);
-      });
-    }
-
-    async function renderGoodUserList() {
-      const user = getCurrentUser();
-      const goodList = document.getElementById('adminGoodList');
-      if (!goodList || !user || !user.admin) {
-        if (goodList) goodList.innerHTML = '';
-        return;
-      }
-      const items = await getItems();
-      const accounts = await fetchLocalAccounts();
-      const goodUsers = accounts.filter(acc => {
-        if (acc.admin) return false;
-        const stats = getUserRatingStats(acc.username, items);
-        return stats.badCritics === 0 && (stats.maxRating === 5 || stats.totalRatings === 0);
-      }).map(acc => {
-        const stats = getUserRatingStats(acc.username, items);
-        return {
-          username: acc.username,
-          email: acc.email,
-          totalRatings: stats.totalRatings,
-          reason: stats.totalRatings === 0 ? 'New user' : '5-star rating'
-        };
-      });
-      if (!goodUsers.length) {
-        goodList.innerHTML = '<div class="admin-user-card"><strong>No users with perfect behavior yet.</strong><span>Users with 0 bad critics or 5-star ratings appear here.</span></div>';
-        return;
-      }
-      goodList.innerHTML = '';
-      goodUsers.forEach(goodUser => {
-        const card = document.createElement('div');
-        card.className = 'admin-user-card good-user-card';
-        card.style.borderColor = 'rgba(98, 214, 167, 0.3)';
-
-        const title = document.createElement('strong');
-        title.style.color = '#62d6a7';
-        title.textContent = goodUser.username + ' ✓';
-
-        const stats = document.createElement('span');
-        stats.textContent = `Email: ${goodUser.email || 'N/A'} | Status: ${goodUser.reason} | Total Ratings: ${goodUser.totalRatings}`;
-
-        const actions = document.createElement('div');
-        actions.className = 'admin-user-actions';
-        const noticeButton = document.createElement('button');
-        noticeButton.type = 'button';
-        noticeButton.style.background = 'linear-gradient(135deg, #62d6a7, #4ecdc4)';
-        noticeButton.textContent = 'Send Good Behavior Notice';
-        noticeButton.addEventListener('click', () => sendGoodBehaviorNotice(goodUser.username));
-        actions.appendChild(noticeButton);
-
-        card.appendChild(title);
-        card.appendChild(stats);
-        card.appendChild(actions);
-        goodList.appendChild(card);
-      });
-    }
-
-    async function sendUserNotice(username, message, type = 'notice') {
-      const user = getCurrentUser();
-      if (!user || !user.admin) {
-        alert('Only admins may send notices.');
-        return;
-      }
-      const noticeArea = document.getElementById('adminNoticeArea');
-      if (noticeArea) {
-        noticeArea.classList.remove('hidden-page');
-        noticeArea.innerHTML = `<strong>${type === 'warning' ? 'Warning notice' : type === 'good' ? 'Good behavior notice' : 'Admin notice'} for ${username}:</strong> ${message}`;
-      }
-      alert(`${type === 'warning' ? 'Warning notice' : 'Notice'} sent to ${username}`);
-    }
-
-    function sendGoodBehaviorNotice(username) {
-      sendUserNotice(username, `Great job, ${username}! Your ratings show strong trust and excellent behavior. Keep it up!`, 'good');
-    }
-
-    function sendWarningNotice(username) {
-      sendUserNotice(username, `Attention ${username}: our review analysis shows room for improvement. Please update your listings to maintain a safe Swapify community.`, 'warning');
-    }
-
-    async function renderAdminUserList() {
-      const user = getCurrentUser();
-      const list = document.getElementById('adminUserList');
-      if (!list) return;
-      if (!user || !user.admin) {
-        list.innerHTML = '';
-        return;
-      }
-      const accounts = await fetchLocalAccounts();
-      if (!accounts.length) {
-        list.innerHTML = '<div class="admin-user-card"><strong>No users found.</strong><span>New accounts will appear here as they register.</span></div>';
-        return;
-      }
-      list.innerHTML = '';
-      accounts.forEach(acc => {
-        const card = document.createElement('div');
-        card.className = 'admin-user-card';
-
-        const title = document.createElement('strong');
-        title.textContent = acc.username + (acc.admin ? ' 👑 Admin' : '');
-
-        const details = document.createElement('span');
-        details.textContent = acc.email ? `Email: ${acc.email}` : 'No email available';
-
-        const actions = document.createElement('div');
-        actions.className = 'admin-user-actions';
-        if (String(acc.username).trim().toLowerCase() !== String(user.username).trim().toLowerCase()) {
-          const removeButton = document.createElement('button');
-          removeButton.type = 'button';
-          removeButton.textContent = 'Remove';
-          removeButton.addEventListener('click', () => removeUserAccount(acc.username));
-          actions.appendChild(removeButton);
-        } else {
-          actions.textContent = 'Current admin account';
-        }
-
-        card.appendChild(title);
-        card.appendChild(details);
-        card.appendChild(actions);
-        list.appendChild(card);
-      });
-    }
-
-    async function removeUserAccount(targetUsername = null) {
-      const user = getCurrentUser();
-      if (!user || !user.admin) {
-        alert('Only admins may remove users.');
-        return;
-      }
-      let target = targetUsername;
-      if (!target || !target.trim()) {
-        target = prompt('Enter the username to remove from Swapify:');
-      }
-      if (!target || !target.trim()) {
-        return;
-      }
-      const normalized = target.trim().toLowerCase();
-      if (normalized === String(user.username).trim().toLowerCase()) {
-        alert('Admins cannot remove their own account here.');
-        return;
-      }
-      try {
-        await deleteAccount(target.trim());
-        await renderAdminUserList();
-        alert(`User '${target.trim()}' has been removed by admin.`);
-      } catch (error) {
-        alert('Unable to remove user: ' + error.message);
-      }
-    }
-
-    function showAuthForm(mode) {
-      const signupFormEl = document.getElementById('signupForm');
-      const loginFormEl = document.getElementById('loginForm');
-      const signupTabEl = document.getElementById('signupTab');
-      const loginTabEl = document.getElementById('loginTab');
-      if (mode === 'login') {
-        signupFormEl.classList.add('hidden-page');
-        loginFormEl.classList.remove('hidden-page');
-        signupTabEl.classList.remove('active');
-        loginTabEl.classList.add('active');
-      } else {
-        signupFormEl.classList.remove('hidden-page');
-        loginFormEl.classList.add('hidden-page');
-        signupTabEl.classList.add('active');
-        loginTabEl.classList.remove('active');
-      }
-    }
-
-    function updateAuthUI() {
-      const userInfo = document.getElementById('userInfo');
-      if (userInfo) {
-        userInfo.textContent = currentUser ? `${currentUser.username}${currentUser.admin ? ' 👑 Admin' : currentUser.premium ? ' 👑 Premium' : ''}` : 'Guest';
-      }
-      if (logoutBtn) {
-        if (currentUser) {
-          logoutBtn.classList.remove('hidden-page');
-        } else {
-          logoutBtn.classList.add('hidden-page');
-        }
-      }
-      updatePremiumUI();
-    }
-
-    function openAuthModal() {
-      const authModal = document.getElementById('authModal');
-      if (!authModal) return;
-      authModal.classList.remove('hidden-page');
-      authModal.setAttribute('aria-hidden', 'false');
-      showAuthForm('signup');
-    }
-
-    function closeAuthModal() {
-      const authModal = document.getElementById('authModal');
-      if (!authModal) return;
-      authModal.classList.add('hidden-page');
-      authModal.setAttribute('aria-hidden', 'true');
-    }
-
-    function updatePremiumUI() {
-      const brandCrown = document.getElementById('brandCrown');
-      const premiumStatus = document.getElementById('premiumStatus');
-      const premiumToggleBtn = document.getElementById('premiumToggle');
-      const adminPanel = document.getElementById('adminPanel');
-      if (brandCrown) {
-        brandCrown.style.display = (currentUser && (currentUser.premium || currentUser.admin)) ? 'inline-flex' : 'none';
-      }
-      if (premiumStatus) {
-        premiumStatus.textContent = hasPremiumAccess() ? 'Premium active' : 'Premium inactive';
-        premiumStatus.classList.toggle('active', hasPremiumAccess());
-      }
-      if (premiumToggleBtn) {
-        premiumToggleBtn.textContent = hasPremiumAccess() ? 'Deactivate Premium' : 'Activate Premium';
-        premiumToggleBtn.disabled = currentUser && currentUser.admin;
-      }
-      if (adminPanel) {
-        adminPanel.classList.toggle('hidden-page', !(currentUser && currentUser.admin));
-      }
-      renderAdminUserList();
-      renderBadUserList();
-      renderGoodUserList();
-    }
-
-    async function setPremiumAccess(value) {
-      premiumAccess = value;
-      if (currentUser) {
-        try {
-          const updated = await setPremium(currentUser.username, value);
-          setCurrentUser(updated);
-        } catch (error) {
-          alert('Unable to update premium status.');
-        }
-      }
-      updatePremiumUI();
-    }
-
-    async function changeAdminUsername() {
-      const user = getCurrentUser();
-      if (!user || !user.admin) {
-        alert('Only admins can change their username.');
-        return;
-      }
-      const newName = prompt('Enter the new admin username:');
-      if (!newName || !newName.trim()) return;
-      const normalized = newName.trim();
-      const existingAccount = await getUserAccount(normalized);
-      if (existingAccount && existingAccount.username.trim().toLowerCase() !== user.username.trim().toLowerCase()) {
-        alert('This username is already taken. Please choose another username.');
-        return;
-      }
-      try {
-        const updated = await updateAccount(user.username, { username: normalized });
-        setCurrentUser(updated);
-        updateAuthUI();
-        alert('Admin username updated successfully.');
-      } catch (error) {
-        alert('Unable to update username: ' + error.message);
-      }
-    }
-
-    async function sendAdminNotice() {
-      const user = getCurrentUser();
-      if (!user || !user.admin) {
-        alert('Only admins may send notices.');
-        return;
-      }
-      const notice = prompt('Enter the community notice message to send:');
-      if (!notice || !notice.trim()) return;
-      const noticeArea = document.getElementById('adminNoticeArea');
-      if (noticeArea) {
-        noticeArea.classList.remove('hidden-page');
-        noticeArea.innerHTML = `<strong>Admin notice:</strong> ${notice.trim()}`;
-      }
-      alert('Notice sent: ' + notice.trim());
-    }
-
-    function showPaymentForm(event) {
-      event.preventDefault();
-      if (!paymentForm) return;
-      paymentForm.classList.remove('hidden-page');
-      paymentForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    function processPayment(event) {
-      event.preventDefault();
-      if (!currentUser) {
-        alert('Please log in or sign up before making a premium payment.');
-        openAuthModal();
-        return;
-      }
-      const fullName = document.getElementById('paymentFullName').value.trim();
-      const country = document.getElementById('paymentCountry').value.trim();
-      const state = document.getElementById('paymentState').value.trim();
-      const district = document.getElementById('paymentDistrict').value.trim();
-      const address = document.getElementById('paymentAddress').value.trim();
-      const zip = document.getElementById('paymentZip').value.trim();
-      const cardNumber = document.getElementById('paymentCardNumber').value.replace(/\s+/g, '').trim();
-      const expiry = document.getElementById('paymentExpiry').value.trim();
-      const securityCode = document.getElementById('paymentSecurityCode').value.trim();
-
-      if (!fullName || !country || !state || !district || !address || !zip || !cardNumber || !expiry || !securityCode) {
-        alert('Please fill in all payment fields.');
-        return;
-      }
-      if (cardNumber.length < 12) {
-        alert('Please enter a valid card number.');
-        return;
-      }
-      if (securityCode.length < 3) {
-        alert('Please enter a valid security code.');
-        return;
-      }
-      setPremiumAccess(true);
-      if (paymentForm) {
-        paymentForm.reset();
-        paymentForm.classList.add('hidden-page');
-      }
-      alert('Premium payment completed. Your premium membership is now active.');
-    }
-
-    function generateSwapifyReply(query) {
-      const normalized = query.toLowerCase();
-      if (!hasPremiumAccess() && includesExpensiveItem(query)) {
-        return 'You cannot trade expensive items like cars, houses, yachts, jets, diamonds, gold, jewellery, submarines, bunkers, islands, castles, or masterpiece art without a Swapify Premium membership. Swapify AI cannot process this trade request unless you upgrade.';
-      }
-      const replyOptions = [];
-      if (normalized.includes('image') || normalized.includes('photo')) {
-        replyOptions.push('Use a sharp, well-lit photo that captures the full item and any important details. Natural light, clear angles, and a clean background make listings more appealing.');
-        replyOptions.push('A good image shows condition clearly, highlights accessories, and helps buyers trust your listing. Aim for at least one crisp shot from the main angle.');
-      }
-      if (normalized.includes('document') || normalized.includes('paper') || normalized.includes('file')) {
-        replyOptions.push('Add supporting documents like warranty cards, receipts, certification papers, or specification sheets. Documents make your listing appear professional and trustworthy.');
-        replyOptions.push('Documents help verify the item and reassure traders. Use PDF, DOC, DOCX, or TXT for best compatibility.');
-      }
-      if (normalized.includes('trade') || normalized.includes('exchange') || normalized.includes('swap')) {
-        replyOptions.push('Be specific about what you want in return. Instead of "anything," ask for a defined item or category, such as a gaming console or collectible vinyl.');
-        replyOptions.push('Clear swap goals help you find the right trade partner faster. State the item you want and describe the condition you expect.');
-      }
-      if (normalized.includes('condition') || normalized.includes('wear') || normalized.includes('damage')) {
-        replyOptions.push('Describe condition honestly: Like New, Good, Fair, or Parts/Repair. Mention any scratches, repairs, or missing pieces so the trade is fair.');
-        replyOptions.push('Honesty about condition builds trust and avoids disputes later. Add notes on how the item was used and any functional details.');
-      }
-      if (normalized.includes('description') || normalized.includes('write') || normalized.includes('suggest description')) {
-        replyOptions.push('A compelling description includes the item name, brand, condition, included accessories, and why you are trading it. Add specific details to stand out.');
-        replyOptions.push('Good descriptions mention key features, any flaws, and what you want in exchange. The clearer you are, the better the match.');
-      }
-      if (normalized.includes('category') || normalized.includes('type') || normalized.includes('what category')) {
-        replyOptions.push('Choose the category that best fits your item: Electronics, Books, Fashion, Home, Collectibles, or Other. The right category helps the right people find your listing.');
-        replyOptions.push('If your item is unique, use Other and describe it carefully. Accurate categories improve visibility in the feed.');
-      }
-      if (normalized.includes('price') || normalized.includes('value') || normalized.includes('worth') || normalized.includes('cost')) {
-        replyOptions.push('Swapify is about fair exchange rather than fixed prices. Compare similar items and propose a fair swap based on condition and demand.');
-        replyOptions.push('Think about what you would accept for the item today. A good exchange matches value, condition, and usefulness for both parties.');
-      }
-      if (normalized.includes('safe') || normalized.includes('trust') || normalized.includes('secure') || normalized.includes('verify')) {
-        replyOptions.push('Stay safe by meeting in public places, verifying items before trading, and checking reviews. Take photos and keep records for every trade.');
-        replyOptions.push('Trust is built through honest listings, clear communication, and community feedback. Use the rating system and avoid rush deals.');
-      }
-      if (normalized.includes('help post') || normalized.includes('how to post') || normalized.includes('posting tips')) {
-        replyOptions.push('To post, fill in item name, category, condition, exchange request, and description. Add a clear image and supportive documents for better response.');
-        replyOptions.push('Use a polished listing with good visuals and detailed text. The more complete your post, the more likely it is to attract the right trade.');
-      }
-      if (normalized.includes('generate description') || normalized.includes('write a description') || normalized.includes('create description')) {
-        return 'Tell me about the item you want to list and I can generate a strong description for it. Share the item name, category, condition, and what you are looking to trade.';
-      }
-      if (normalized.includes('premium') || normalized.includes('membership') || normalized.includes('upgrade')) {
-        return 'Swapify Premium unlocks luxury trading for items like houses, yachts, jets, boats, diamonds, gold, jewellery, submarines, bunkers, islands, castles, and masterpiece art. It costs Rs.99/Mn and gives you access to high-value swap listings.';
-      }
-      if (normalized.includes('rating') || normalized.includes('review') || normalized.includes('feedback')) {
-        return 'Swapify ratings help the community trust each other. 1 star means Decent, 2 stars means Bad, and 3 stars means Very Bad. A 3-star rating triggers a notice from the website and encourages better behavior.';
-      }
-      if (normalized.includes('what') || normalized.includes('suggest') || normalized.includes('swapify') || normalized.includes('how does')) {
-        return 'Swapify is a modern barter marketplace with Home, Post It, Swapify AI, Premium, and Developers sections. I can help with listings, trading advice, membership rules, and item descriptions. Ask me anything.';
-      }
-      if (replyOptions.length) {
-        return replyOptions[Math.floor(Math.random() * replyOptions.length)];
-      }
-      return 'I can help with your Swapify listing, item category, image tips, safety advice, premium membership access, or trade questions. What would you like to know?';
-    }
-
-    function getMyPostedItems(items) {
-      if (!currentUser || !items || !items.length) return [];
-      const normalizedUser = String(currentUser.username || '').trim().toLowerCase();
-      return items.filter(item => String(item.postedBy || '').trim().toLowerCase() === normalizedUser);
-    }
-
-    function renderProfileSection(items) {
-      if (!profileSummary || !profileFeed) return;
-      if (!currentUser) {
-        profileSummary.innerHTML = '<p>Log in or create an account to view your profile and the trade listings you have posted.</p>';
-        profileFeed.innerHTML = '<div class="item-card"><div class="item-meta"><h3>Please sign in</h3><p>Only registered users can view their profile posts.</p></div></div>';
-        return;
-      }
-
-      const userPosts = getMyPostedItems(items);
-      profileSummary.innerHTML = `
-        <div><strong>${currentUser.username}</strong> ${currentUser.admin ? '👑 Admin' : currentUser.premium ? '👑 Premium' : ''}</div>
-        <div style="margin-top: 10px; color: var(--muted);">${currentUser.email || 'No email provided'}</div>
-        <div style="margin-top: 10px;">You have posted <strong>${userPosts.length}</strong> item${userPosts.length === 1 ? '' : 's'} on Swapify.</div>
-        <div style="margin-top: 10px; color: var(--muted);">Your profile displays your listing images and the latest trader messages from interested members.</div>
-      `;
-
-      if (!userPosts.length) {
-        profileFeed.innerHTML = '<div class="item-card"><div class="item-meta"><h3>No posts yet</h3><p>Use the Post It section to add your first listing.</p></div></div>';
-        return;
-      }
-
-      profileFeed.innerHTML = '';
-      userPosts.forEach(item => profileFeed.appendChild(createItemCard(item, { showChats: true })));
-    }
-
-    function generateDescriptionFromAI(itemDetails) {
-      const { itemName, category, condition, exchange } = itemDetails;
-      if (!itemName && !category) {
-        return 'Please provide item name and category for a better description.';
-      }
-      const categoryTips = {
-        'Electronics': 'Mention brand, model, condition, accessories included, and how it works. Buyers love clear tech details.',
-        'Books': 'Share title, author, edition, publication year, condition, and whether it has notes or damage.',
-        'Fashion': 'Describe size, brand, material, fit, condition, and any styling details.',
-        'Home': 'Explain the item type, dimensions, material, condition, and any special features.',
-        'Collectibles': 'Highlight rarity, age, provenance, condition, and why this item is valuable.',
-        'Other': 'Describe what the item is, how it is used, and any details that make it unique.'
-      };
-      const tip = categoryTips[category] || categoryTips['Other'];
-      return `Generated description:\n\nItem: ${itemName || 'Your item'}\nCategory: ${category || 'General'}\nCondition: ${condition || 'Not specified'}\nLooking to trade for: ${exchange || 'Make an offer'}\n\n${tip}\n\nAdd any personal details, why you are trading, and anything extra the new owner should know. Specific listings find better trade partners.`;
-    }
-
-    searchInput?.addEventListener('input', () => {
-      loadItems(searchInput.value);
-    });
-
-    itemImage?.addEventListener('change', () => {
-      const file = itemImage.files[0];
-      if (!file) {
-        updatePreview(imagePreview, 'Image preview', 'No image selected yet.');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => {
-        imagePreview.innerHTML = `<strong>Image preview</strong><img src="${reader.result}" alt="Item preview" />`;
-        imagePreview.dataset.preview = reader.result;
-      };
-      reader.readAsDataURL(file);
-    });
-
-    itemDocument?.addEventListener('change', () => {
-      const file = itemDocument.files[0];
-      if (!file) {
-        updatePreview(docPreview, 'Document ready', 'No document selected yet.');
-        return;
-      }
-      updatePreview(docPreview, 'Document ready', file.name);
-      docPreview.dataset.name = file.name;
-    });
-
-    postForm?.addEventListener('submit', async event => {
-      event.preventDefault();
-      const selectedCategory = document.getElementById('itemCategory').value;
-      const otherCategoryValue = otherCategoryText?.value.trim() || '';
-      const finalCategory = selectedCategory === 'Other' && otherCategoryValue
-        ? `Other: ${otherCategoryValue}`
-        : selectedCategory;
-      const item = {
-        id: generateId(),
-        name: document.getElementById('itemName').value.trim(),
-        category: finalCategory,
-        condition: document.getElementById('itemCondition').value.trim(),
-        exchange: document.getElementById('itemExchange').value.trim(),
-        description: document.getElementById('itemDescription').value.trim(),
-        image: imagePreview.dataset.preview || '',
-        documentName: docPreview.dataset.name || '',
-        premiumOwner: hasPremiumAccess(),
-        ratingSum: 0,
-        ratingCount: 0,
-        reviews: [],
-        postedBy: currentUser ? currentUser.username : 'Guest',
-        postedByAdmin: currentUser ? currentUser.admin : false
-      };
-
-      if (!item.name || !item.category || !item.condition || !item.exchange || !item.description) {
-        alert('Please fill in every field before posting.');
-        return;
-      }
-      if (!hasPremiumAccess() && includesExpensiveItem(`${item.name} ${item.exchange} ${item.description}`)) {
-        alert('Non-members cannot post expensive trades like cars, houses, yachts, jets, boats, diamonds, gold, jewellery, submarines, bunkers, islands, castles, or masterpiece art. Upgrade to Premium to post these listings.');
-        return;
-      }
-      try {
-        await createItem(item);
-        await loadItems(searchInput?.value || '');
-        postForm.reset();
-        imagePreview.dataset.preview = '';
-        docPreview.dataset.name = '';
-        updatePreview(imagePreview, 'Image preview', 'No image selected yet.');
-        updatePreview(docPreview, 'Document ready', 'No document selected yet.');
-        document.getElementById('itemName').focus();
-      } catch (error) {
-        alert('Unable to create listing. ' + error.message);
-      }
-    });
-
-    aiSendButton?.addEventListener('click', () => {
-      const query = aiInput.value.trim();
-      if (!query) return;
-      aiChat.appendChild(createAiMessage(query, 'user'));
-      aiInput.value = '';
-
-      const loadingMessage = createAiMessage('Thinking...', 'bot');
-      aiChat.appendChild(loadingMessage);
-      aiChat.scrollTop = aiChat.scrollHeight;
-
-      fetch(`${API_BASE_URL}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: query })
-      })
-        .then(response => response.json())
-        .then(data => {
-          loadingMessage.remove();
-          aiChat.appendChild(createAiMessage(data.reply || "My bad, didn't catch that.", 'bot'));
-          aiChat.scrollTop = aiChat.scrollHeight;
-        })
-        .catch(error => {
-          console.error('Chat error:', error);
-          loadingMessage.remove();
-          aiChat.appendChild(createAiMessage('Server is waking up or offline. Try again!', 'bot'));
-          aiChat.scrollTop = aiChat.scrollHeight;
-        });
-    });
-
-    aiInput?.addEventListener('keypress', event => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        aiSendButton?.click();
-      }
-    });
-
-    if (premiumToggle) {
-      premiumToggle.addEventListener('click', () => setPremiumAccess(!hasPremiumAccess()));
-    }
-    if (itemCategoryTrigger) {
-      itemCategoryTrigger.addEventListener('click', () => {
-        itemCategoryMenu?.classList.toggle('hidden-page');
-      });
-    }
-
-    document.querySelectorAll('.category-option').forEach(option => {
-      option.addEventListener('click', () => {
-        const value = option.dataset.value;
-        if (!value) return;
-        itemCategoryInput.value = value;
-        const triggerText = itemCategoryTrigger?.querySelector('span');
-        if (triggerText) {
-          triggerText.textContent = value;
-        }
-        document.querySelectorAll('.category-option').forEach(btn => btn.classList.remove('is-selected'));
-        option.classList.add('is-selected');
-        itemCategoryMenu?.classList.add('hidden-page');
-
-        if (value === 'Other') {
-          otherCategoryWrap?.classList.add('visible');
-        } else {
-          otherCategoryWrap?.classList.remove('visible');
-          if (otherCategoryText) {
-            otherCategoryText.value = '';
-          }
-        }
-      });
-    });
-
-    document.addEventListener('click', event => {
-      if (!itemCategoryMenu || !itemCategoryTrigger) return;
-      if (!itemCategoryMenu.contains(event.target) && !itemCategoryTrigger.contains(event.target)) {
-        itemCategoryMenu.classList.add('hidden-page');
-      }
-    });
-
-    if (openPaymentLink) {
-      openPaymentLink.addEventListener('click', showPaymentForm);
-    }
-    if (paymentForm) {
-      paymentForm.addEventListener('submit', processPayment);
-    }
-    if (changeUsernameBtn) {
-      changeUsernameBtn.addEventListener('click', changeAdminUsername);
-    }
-    if (sendNoticeBtn) {
-      sendNoticeBtn.addEventListener('click', sendAdminNotice);
-    }
-    if (removeUserBtn) {
-      removeUserBtn.addEventListener('click', () => removeUserAccount());
-    }
-
-    logoutBtn?.addEventListener('click', () => {
-      const shouldLogout = confirm('Are you sure you want to log out of Swapify?');
-      if (!shouldLogout) return;
-      clearCurrentUser();
-      setPremiumAccess(false);
-      sessionStorage.removeItem(enteredAppKey);
-      splash.classList.remove('hidden-page');
-      headerEl.classList.add('hidden-page');
-      mainEl.classList.add('hidden-page');
-    });
-
-    signupForm?.addEventListener('submit', async event => {
-      event.preventDefault();
-      const email = document.getElementById('signupEmail').value.trim();
-      const phone = document.getElementById('signupPhone').value.trim();
-      const username = document.getElementById('signupUsername').value.trim();
-      const password = document.getElementById('signupPassword').value;
-      if (!email || !phone || !username || !password) {
-        alert('Please fill out every field to create an account.');
-        return;
-      }
-      const existing = await getUserAccount(username);
-      if (existing) {
-        alert('This username already exists. Please log in or choose another username.');
-        return;
-      }
-      try {
-        const newUser = await createAccount({
-          email,
-          phone,
-          username,
-          password,
-          premium: isAdminPassword(password),
-          admin: isAdminPassword(password)
-        });
-        authenticateUser(newUser);
-      } catch (error) {
-        console.error('Signup failed:', error);
-        alert('Unable to create an account: ' + error.message);
-      }
-    });
-
-    loginForm?.addEventListener('submit', async event => {
-      event.preventDefault();
-      const username = document.getElementById('loginUsername').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      if (!username || !password) {
-        alert('Please enter both username and password to log in.');
-        return;
-      }
-      try {
-        const existing = await loginUser({ username, password });
-        if (!existing) {
-          alert('Invalid username or password. Please try again.');
-          return;
-        }
-        authenticateUser(existing);
-      } catch (error) {
-        console.error('Login failed:', error);
-        alert('Login failed: ' + error.message);
-      }
-    });
-
-    async function authenticateUser(user) {
-      if (!user) return;
-      user.admin = isAdminPassword(user.password) || user.admin;
-      user.premium = user.premium || user.admin;
-      setCurrentUser(user);
-      sessionStorage.setItem(enteredAppKey, 'true');
-      closeAuthModal();
-      splash.classList.add('hidden-page');
-      headerEl.classList.remove('hidden-page');
-      mainEl.classList.remove('hidden-page');
-      await loadItems(searchInput?.value || '');
-    }
-
-    async function openSwapify() {
-      sessionStorage.setItem(enteredAppKey, 'true');
-      splash.classList.add('hidden-page');
-      headerEl.classList.remove('hidden-page');
-      mainEl.classList.remove('hidden-page');
-      try {
-        const user = getCurrentUser();
-        if (!user) {
-          openAuthModal();
-        }
-        updateAuthUI();
-        await loadItems(searchInput?.value || '');
-      } catch (error) {
-        console.error('Error while opening Swapify:', error);
-      }
-    }
-
-    async function enterSwapifyApp() {
-      await openSwapify();
-    }
-
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const url = btn.dataset.url;
-        if (url && url.startsWith('#')) {
-          document.querySelector(url)?.scrollIntoView({ behavior: 'smooth' });
-        } else if (url && url.endsWith('.html')) {
-          window.location.href = url;
-        } else if (url) {
-          window.open(url, '_blank', 'noopener');
-        }
-      });
-    });
-
-    document.getElementById('profileNavButton')?.addEventListener('click', () => {
-      window.location.href = 'profile.html';
-    });
-
-    document.getElementById('openProfileBtn')?.addEventListener('click', () => {
-      document.querySelector('#profile')?.scrollIntoView({ behavior: 'smooth' });
-    });
-
-    document.querySelectorAll('.global-language-select').forEach(select => {
-      select.addEventListener('change', () => applyLanguage(select.value));
-    });
-
-    document.getElementById('switchToLogin')?.addEventListener('click', () => showAuthForm('login'));
-    document.getElementById('switchToSignup')?.addEventListener('click', () => showAuthForm('signup'));
-    splashLogo?.addEventListener('click', enterSwapifyApp);
-
-    function applyLanguage(lang) {
-      const selected = translations[lang] ? lang : 'en';
-      currentLanguage = selected;
-      localStorage.setItem('swapify-language', selected);
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.dataset.i18n;
-        const value = translations[selected][key];
-        if (!value) return;
-        if ((el.tagName.toLowerCase() === 'input' || el.tagName.toLowerCase() === 'textarea') && el.placeholder !== undefined) {
-          el.placeholder = value;
-        } else {
-          el.textContent = value;
-        }
-      });
-      document.querySelectorAll('.global-language-select').forEach(select => {
-        select.value = selected;
-      });
-    }
-
-    window.addEventListener('load', async () => {
-      console.log('Swapify local index.html loaded');
-      applyLanguage(currentLanguage);
-      await loadItems(searchInput?.value || '');
-      if (currentUser || sessionStorage.getItem(enteredAppKey) === 'true') {
-        sessionStorage.setItem(enteredAppKey, 'true');
-        splash.classList.add('hidden-page');
-        headerEl.classList.remove('hidden-page');
-        mainEl.classList.remove('hidden-page');
-      }
-      updateAuthUI();
-    });
-  </script>
-</body>
-</html>
+  }
+
+  .hero-visual .panel {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    z-index: 1;
+    color: var(--bone);
+  }
+
+  .card {
+    background: rgba(42, 28, 18, 0.92);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card h3 {
+    font-size: 1.05rem;
+    color: var(--sand);
+  }
+
+  .card p {
+    color: var(--muted);
+    line-height: 1.65;
+    font-size: 0.95rem;
+  }
+
+  .stat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .stat strong {
+    font-size: 1.45rem;
+    color: var(--fire);
+  }
+
+  section {
+    margin-top: 18px;
+    scroll-margin-top: 96px;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    gap: 16px;
+  }
+
+  .section-title h2 {
+    font-size: 1.65rem;
+    letter-spacing: -0.02em;
+    color: var(--bone);
+  }
+
+  .section-title span {
+    color: var(--muted);
+  }
+
+  .intro-card {
+    padding: 26px 28px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+  }
+
+  .intro-card p {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  /* ========== POST FORM ========== */
+  .post-form {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .category-picker {
+    position: relative;
+  }
+
+  .category-trigger {
+    width: 100%;
+    border: 1px solid var(--clay);
+    background: var(--bg);
+    color: var(--bone);
+    border-radius: 8px;
+    padding: 16px 18px;
+    outline: none;
+    font-size: 0.97rem;
+    transition: border 150ms ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .category-trigger:focus,
+  .category-trigger:hover {
+    border-color: var(--fire);
+  }
+
+  .category-trigger .chevron {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .category-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    display: grid;
+    gap: 4px;
+    padding: 8px;
+    border-radius: 10px;
+    background: var(--surface-strong);
+    border: 1px solid var(--clay);
+    box-shadow: var(--shadow);
+    max-height: 240px;
+    overflow-y: auto;
+  }
+
+  .other-category-wrap {
+    grid-column: 1 / -1;
+    display: none;
+    gap: 10px;
+    margin-top: -4px;
+  }
+
+  .other-category-wrap.visible {
+    display: grid;
+  }
+
+  .other-category-wrap label {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .category-option {
+    border: none;
+    background: transparent;
+    color: var(--bone);
+    text-align: left;
+    padding: 12px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+
+  .category-option:hover,
+  .category-option.is-selected {
+    background: linear-gradient(135deg, rgba(224, 122, 61, 0.35), rgba(196, 92, 38, 0.3));
+    color: var(--bone);
+  }
+
+  .post-form textarea,
+  .post-form input,
+  .post-form select {
+    width: 100%;
+    border: 1px solid var(--clay);
+    background: var(--bg);
+    color: var(--bone);
+    border-radius: 8px;
+    padding: 16px 18px;
+    outline: none;
+    font-size: 0.97rem;
+    transition: border 150ms ease;
+    font-family: inherit;
+    color-scheme: dark;
+  }
+
+  .post-form input:focus,
+  .post-form textarea:focus,
+  .post-form select:focus {
+    border-color: var(--fire);
+  }
+
+  .post-form textarea {
+    grid-column: 1 / -1;
+    min-height: 140px;
+    resize: vertical;
+  }
+
+  .post-form input[type="file"] {
+    grid-column: 1 / -1;
+    width: 100%;
+    border: 1px solid var(--fire);
+    background: linear-gradient(135deg, var(--fire), var(--fire-deep));
+    color: var(--bone);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(224, 122, 61, 0.25);
+    font-family: inherit;
+  }
+
+  .post-form input[type="file"]::file-selector-button {
+    border: 1px solid rgba(245, 240, 230, 0.3);
+    background: rgba(245, 240, 230, 0.15);
+    color: var(--bone);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-right: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    font-family: inherit;
+  }
+
+  .file-note {
+    grid-column: 1 / -1;
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-top: -8px;
+    margin-bottom: 12px;
+  }
+
+  .media-preview {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .preview-panel {
+    display: grid;
+    gap: 10px;
+    align-items: center;
+    padding: 14px;
+    border-radius: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+
+  .preview-panel img,
+  .item-image {
+    max-width: 100%;
+    border-radius: 8px;
+    display: block;
+    object-fit: cover;
+  }
+
+  .item-image {
+    max-height: 280px;
+    margin-bottom: 16px;
+  }
+
+  .attachment-list {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .attachment-badge {
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: rgba(224, 122, 61, 0.15);
+    color: var(--sand);
+    font-size: 0.9rem;
+    border: 1px solid rgba(224, 122, 61, 0.25);
+  }
+
+  /* ========== AI PANEL ========== */
+  .ai-panel {
+    grid-column: 1 / -1;
+    background: var(--surface);
+    border: 1px solid var(--clay);
+    border-radius: 12px;
+    padding: 22px;
+    display: grid;
+    gap: 14px;
+  }
+
+  .ai-panel h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--sand);
+  }
+
+  .ai-chat {
+    display: grid;
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .ai-chat-message {
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: var(--bg);
+    line-height: 1.65;
+    font-size: 0.96rem;
+  }
+
+  .ai-chat-message.bot {
+    background: rgba(224, 122, 61, 0.12);
+    color: var(--bone);
+    border: 1px solid rgba(224, 122, 61, 0.2);
+  }
+
+  .ai-chat-message.user {
+    background: var(--surface-strong);
+    color: var(--sand);
+    justify-self: end;
+    border: 1px solid var(--border);
+  }
+
+  .ai-input-group {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .ai-input-group input {
+    border: 1px solid var(--clay);
+    background: var(--bg);
+    color: var(--bone);
+    border-radius: 8px;
+    padding: 16px 18px;
+    min-height: 56px;
+    outline: none;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+
+  .ai-input-group button {
+    border: none;
+    border-radius: 8px;
+    padding: 14px 22px;
+    background: linear-gradient(135deg, var(--fire), var(--fire-deep));
+    color: var(--bone);
+    cursor: pointer;
+    transition: transform 150ms ease, box-shadow 150ms ease;
