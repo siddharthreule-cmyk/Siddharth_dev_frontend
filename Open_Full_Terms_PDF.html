@@ -1,0 +1,267 @@
+html_web_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms & Conditions - Swapify</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-dark: #0f172a;
+            --accent: #3b82f6;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.7;
+            padding: 0;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: #ffffff;
+            padding: 60px 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--accent);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #93c5fd;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: -30px auto 60px auto;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .meta-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .meta-info {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .meta-info span {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .btn-download {
+            background-color: var(--accent);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-download:hover {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .section-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            transition: box-shadow 0.2s;
+        }
+
+        .section-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            font-size: 1.35rem;
+            color: var(--primary);
+            border-left: 4px solid var(--accent);
+            padding-left: 12px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #334155;
+            font-size: 1.02rem;
+        }
+
+        ul {
+            margin-bottom: 0;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            color: #334155;
+            font-size: 1.02rem;
+        }
+
+        li:last-child {
+            margin-bottom: 0;
+        }
+
+        .intro-text {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            font-size: 1.05rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2rem; }
+            .meta-card { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero">
+        <h1>Swapify Terms & Conditions</h1>
+        <p>Official Platform Guidelines, Barter Policies, and Community Standards</p>
+    </div>
+
+    <div class="container">
+        <div class="meta-card">
+            <div class="meta-info">
+                <span>Effective Date:</span> August 2026 &nbsp;|&nbsp; <span>Platform:</span> Swapify Barter Marketplace
+            </div>
+            <a href="Swapify_Terms_and_Conditions_v2.pdf" download class="btn-download">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Download PDF Version
+            </a>
+        </div>
+
+        <div class="intro-text">
+            These terms govern your use of Swapify’s barter marketplace, premium membership, and community features. By continuing to use the platform, you agree to the rules outlined below.
+        </div>
+
+        <div class="section-card">
+            <h2>1. Acceptable Use</h2>
+            <p>You must use Swapify honestly, respectfully, and safely. The platform relies on mutual trust between community members. Prohibited activities include, but are not limited to:</p>
+            <ul>
+                <li>Harassment, bullying, or abusive behavior toward other members.</li>
+                <li>Fraudulent listings, deceptive trade practices, or scams.</li>
+                <li>Posting false descriptions or intentionally misrepresenting items.</li>
+                <li>Impersonating other users, brands, or platform administrators.</li>
+                <li><strong>Using platform messages or chat features for dating, romantic solicitation, or non-barter personal relationship hunting. Swapify is strictly a marketplace for trading goods and services, not a dating app.</strong></li>
+            </ul>
+        </div>
+
+        <div class="section-card">
+            <h2>2. Listings and Trades</h2>
+            <p>All listings posted on Swapify must be accurate and clearly described. Transparency ensures a healthy marketplace ecosystem.</p>
+            <ul>
+                <li>Users are strictly responsible for the quality, condition, legality, and details of the items they post.</li>
+                <li>Trades are conducted peer-to-peer; Swapify acts as a facilitator and does not guarantee physical item performance unless specified under verified programs.</li>
+            </ul>
+        </div>
+
+        <div class="section-card">
+            <h2>3. Premium Membership</h2>
+            <p>Premium membership unlocks access to high-value trading features, enhanced visibility, and specialized marketplace tools.</p>
+            <ul>
+                <li>Premium users must adhere to the exact same community standards and legal rules as standard users.</li>
+                <li>Accounts holding Premium status may be subject to additional identity or listing reviews when handling expensive or high-value items to maintain platform security.</li>
+            </ul>
+        </div>
+
+        <div class="section-card">
+            <h2>4. Safety and Trust</h2>
+            <p>Swapify actively encourages safe exchanges and good-faith communication among all participants.</p>
+            <ul>
+                <li>Please verify trading partners carefully, avoid suspicious off-platform payment or communication requests, and meet in secure public locations for physical swaps.</li>
+                <li>Report any suspicious activity, misconduct, or policy violations promptly to the administrative team.</li>
+            </ul>
+        </div>
+
+        <div class="section-card">
+            <h2>5. Privacy and Content Rights</h2>
+            <p>By posting images, documents, pricing information, or text descriptions on Swapify, you grant the platform necessary rights to display that content.</p>
+            <ul>
+                <li>You confirm that you hold full permission to share all uploaded content and media.</li>
+                <li>Content must not infringe upon copyright, trademark, privacy, or any other third-party rights or applicable laws.</li>
+            </ul>
+        </div>
+
+        <div class="section-card">
+            <h2>6. Community Enforcement</h2>
+            <p>Maintaining a safe marketplace requires active moderation and fair rule enforcement.</p>
+            <ul>
+                <li>Repeated bad behavior, scam reports, or policy breaches may lead to official warnings or temporary/permanent account restrictions.</li>
+                <li>Administrators reserve the right to remove harmful, illegal, or misleading content without prior notice.</li>
+                <li>Users are expected to maintain respectful and constructive communication at all times.</li>
+            </ul>
+        </div>
+
+        <footer>
+            &copy; 2026 Swapify Inc. All rights reserved. Built for seamless and safe peer-to-peer bartering.
+        </footer>
+    </div>
+
+</body>
+</html>
+"""
+
+with open("terms.html", "w") as f:
+    f.write(html_web_content)
+print("Web page file generated.")
