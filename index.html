@@ -3104,17 +3104,32 @@ function applyLanguage(lang) {
   });
 }
 
-window.addEventListener('load', async () => {
-  console.log('Swapify local index.html loaded');
-  applyLanguage(currentLanguage);
-  await loadItems(searchInput?.value || '');
-  if (currentUser || sessionStorage.getItem(enteredAppKey) === 'true') {
-    sessionStorage.setItem(enteredAppKey, 'true');
-    splash.classList.add('hidden-page');
-    headerEl.classList.remove('hidden-page');
-    mainEl.classList.remove('hidden-page');
-  }
-  updateAuthUI();
-});
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const splashLogo = document.getElementById('splashLogo');
+    const splash = document.getElementById('splash');
+    const headerEl = document.querySelector('header') || document.getElementById('header');
+    const mainEl = document.querySelector('main') || document.getElementById('main');
+
+    if (splashLogo) {
+      splashLogo.addEventListener('click', () => {
+        // Hide splash screen completely
+        if (splash) splash.style.display = 'none';
+        
+        // Show main app elements
+        if (headerEl) headerEl.classList.remove('hidden-page');
+        if (mainEl) mainEl.classList.remove('hidden-page');
+        
+        // Save state so it stays open
+        sessionStorage.setItem('swapify_entered', 'true');
+        
+        // Open auth modal if user is not logged in
+        if (typeof openAuthModal === 'function' && !currentUser) {
+          openAuthModal();
+        }
+      });
+    }
+  });
+
 </body>
 </html>
