@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium - Swapify</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #2c3e50;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        nav a {
+            color: #ecf0f1;
+            text-decoration: none;
+            margin: 0 1.5rem;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #667eea;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            color: white;
+            padding: 4rem 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .features-section {
+            background: white;
+            padding: 4rem 2rem;
+            margin: 2rem 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .features-section h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-card {
+            padding: 2rem;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .feature-card p {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-section {
+            background: white;
+            padding: 4rem 2rem;
+            margin: 2rem 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .pricing-section h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .pricing-card.popular {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            transform: scale(1.05);
+        }
+
+        .pricing-card h3 {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .price {
+            font-size: 3rem;
+            color: #667eea;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .price-period {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .pricing-features li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+
+        .pricing-features li::before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1.5rem;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .badge {
+            background: #764ba2;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-top: -1rem;
+            display: inline-block;
+        }
+
+        .comparison-section {
+            background: white;
+            padding: 4rem 2rem;
+            margin: 2rem 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .comparison-section h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        .comparison-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .check {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .cross {
+            color: #999;
+            font-weight: bold;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+
+        .cta-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem;
+            margin: 2rem 0;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .cta-banner h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .pricing-card.popular {
+                transform: scale(1);
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav a {
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">Swapify Premium Subscription</div>
+            <div>
+                <a href="#home">Home</a>
+                <a href="#features">Features</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#comparison">Comparison</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="hero" id="home">
+            <h1>Unlock Premium Trading</h1>
+            <p>Upgrade to Premium and maximize your bartering potential with advanced features</p>
+        </section>
+
+        <section class="features-section" id="features">
+            <h2>Premium Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>🚀 Unlimited Listings</h3>
+                    <p>Post unlimited barter items without any restrictions or limits</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎯 Smart Matching AI</h3>
+                    <p>AI-powered algorithm that matches your items with compatible trades automatically</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⭐ Trusted Trader Badge</h3>
+                    <p>Display verified trader status and access exclusive barter community</p>
+                </div>
+                <div class="feature-card">
+                    <h3>💰 Value Estimation Tool</h3>
+                    <p>Get instant market value estimates for fair and balanced trades</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📱 Priority Notifications</h3>
+                    <p>Real-time alerts for matching trades and interested buyers</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📊 Trade Analytics</h3>
+                    <p>Track successful trades, completion rates, and trading history</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔐 Secure Escrow Service</h3>
+                    <p>Protection for both parties with secure hold during transactions</p>
+                </div>
+                <div class="feature-card">
+                    <h3>💬 Direct Negotiation Tools</h3>
+                    <p>Advanced messaging and multi-item swap negotiation features</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⭐ Trader Ratings & Reviews</h3>
+                    <p>Build your reputation with verified barter feedback and ratings</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎁 Wishlist & Watch Items</h3>
+                    <p>Create custom wishlists and get notified when matching items appear</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📸 Enhanced Photos</h3>
+                    <p>Up to 10GB of HD image storage and photo enhancement tools</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🌐 Premium Member Directory</h3>
+                    <p>Access exclusive directory of top traders and special community events</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="pricing-section" id="pricing">
+            <h2>Choose Your Plan</h2>
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <h3>Monthly</h3>
+                    <div class="price">$9.99</div>
+                    <div class="price-period">per month</div>
+                    <ul class="pricing-features">
+                        <li>Unlimited Barter Listings</li>
+                        <li>Smart Matching AI</li>
+                        <li>Secure Escrow Service</li>
+                        <li>Trusted Trader Badge</li>
+                        <li>Value Estimation Tool</li>
+                        <li>Priority Support (24/7)</li>
+                    </ul>
+                    <button class="btn">Subscribe Monthly</button>
+                </div>
+
+                <div class="pricing-card popular">
+                    <div class="badge">Most Popular</div>
+                    <h3>Annual</h3>
+                    <div class="price">$79.99</div>
+                    <div class="price-period">per year (Save 33%)</div>
+                    <ul class="pricing-features">
+                        <li>All Premium Features</li>
+                        <li>Unlimited Listings</li>
+                        <li>Smart Matching AI</li>
+                        <li>10GB Photo Storage</li>
+                        <li>Escrow Protection</li>
+                        <li>Premium Directory Access</li>
+                    </ul>
+                    <button class="btn">Subscribe Annual</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="comparison-section" id="comparison">
+            <h2>Free vs Premium</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Free Plan</th>
+                        <th>Premium Plan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Barter Listings</td>
+                        <td><span class="cross">5/month</span></td>
+                        <td><span class="check">Unlimited</span></td>
+                    </tr>
+                    <tr>
+                        <td>Smart Matching AI</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Secure Escrow Service</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Trusted Trader Badge</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Value Estimation Tool</td>
+                        <td><span class="cross">Basic</span></td>
+                        <td><span class="check">Advanced</span></td>
+                    </tr>
+                    <tr>
+                        <td>Photo Storage</td>
+                        <td><span class="cross">2GB</span></td>
+                        <td><span class="check">10GB HD</span></td>
+                    </tr>
+                    <tr>
+                        <td>Real-time Match Notifications</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Trade History & Analytics</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Advanced Negotiation Tools</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Priority Customer Support</td>
+                        <td><span class="cross">Standard (48h)</span></td>
+                        <td><span class="check">24/7 (1-2h)</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="cta-banner">
+            <h2>Ready to Trade Smarter?</h2>
+            <p>Join thousands of successful traders using Premium</p>
+            <button class="btn">Get Started Today</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Swapify. All rights reserved.</p>
+        <p>Questions? Contact us at support@swapify.com</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Button click handlers for payment redirection
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const buttonText = this.textContent.trim();
+                let paymentUrl = '';
+                
+                // Redirect based on which button was clicked
+                if (buttonText === 'Subscribe Monthly') {
+                    // Redirect to Stripe, PayPal, or your payment processor for monthly plan
+                    paymentUrl = 'https://payment.example.com/checkout?plan=monthly&amount=9.99';
+                } else if (buttonText === 'Subscribe Annual') {
+                    // Redirect for annual plan
+                    paymentUrl = 'https://payment.example.com/checkout?plan=annual&amount=79.99';
+                } else if (buttonText === 'Get Started Today') {
+                    // Main CTA button - redirect to checkout
+                    paymentUrl = 'https://payment.example.com/checkout';
+                }
+                
+                if (paymentUrl) {
+                    // Uncomment below to enable actual payment redirection
+                    // window.location.href = paymentUrl;
+                    
+                    // For testing, show the URL that would be used
+                    alert(`Redirecting to payment:\n${paymentUrl}\n\nReplace the payment URL with your actual payment processor.`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
