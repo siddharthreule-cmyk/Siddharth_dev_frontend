@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Swapify</title>
+  <script>
+// At the top of your frontend script (e.g., in index.html)
+
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:4000'
+  : 'https://siddharth-dev-backend.onrender.com'; // Replace with your actual Render backend URL
+  </script>
   <style>
     :root {
       --bg: #050a18;
@@ -48,26 +55,23 @@
     }
 
     nav {
-      width: min(1180px, calc(100% - 30px));
+      width: min(1180px, calc(100% - 36px));
       margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      padding: 10px 0;
-      min-height: 62px;
+      gap: 14px;
+      padding: 18px 0;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--accent);
-      font-size: 0.9rem;
-      white-space: nowrap;
     }
 
     .brand .dot {
@@ -89,11 +93,11 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 4px 10px;
+      padding: 6px 12px;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.12);
       color: #d0e9ff;
-      font-size: 0.68rem;
+      font-size: 0.75rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
@@ -101,22 +105,21 @@
     .user-info {
       color: var(--text);
       background: rgba(255,255,255,0.06);
-      padding: 8px 12px;
-      border-radius: 14px;
-      font-size: 0.85rem;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 0.95rem;
       border: 1px solid rgba(255, 255, 255, 0.08);
-      white-space: nowrap;
     }
 
     .logout-btn {
       border: 1px solid rgba(255, 255, 255, 0.08);
       background: rgba(79, 140, 255, 0.12);
       color: var(--text);
-      padding: 8px 12px;
-      border-radius: 12px;
+      padding: 10px 14px;
+      border-radius: 14px;
       cursor: pointer;
       transition: background 180ms ease, transform 180ms ease;
-      font-size: 0.85rem;
+      font-size: 0.95rem;
     }
 
     .logout-btn:hover {
@@ -375,12 +378,9 @@
 
     .nav-links {
       display: flex;
-      gap: 4px;
-      flex-wrap: nowrap;
+      gap: 16px;
+      flex-wrap: wrap;
       justify-content: flex-end;
-      align-items: center;
-      min-width: 0;
-      overflow: hidden;
     }
 
     .nav-links button {
@@ -388,13 +388,10 @@
       background: transparent;
       color: var(--text);
       cursor: pointer;
-      padding: 7px 9px;
-      border-radius: 8px;
+      padding: 10px 14px;
+      border-radius: 14px;
       transition: all 180ms ease;
-      font-size: 0.78rem;
-      line-height: 1.2;
-      white-space: nowrap;
-      letter-spacing: 0.01em;
+      font-size: 0.95rem;
     }
 
     .nav-links button.active,
@@ -409,8 +406,8 @@
       border-radius: 999px;
       background: linear-gradient(135deg, #4f8cff, #8e5aff);
       color: white;
-      padding: 8px 12px;
-      font-size: 0.85rem;
+      padding: 10px 16px;
+      font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 12px 28px rgba(79, 140, 255, 0.18);
@@ -447,21 +444,20 @@
     }
 
     .search-bar {
-      flex: 1 1 280px;
-      min-width: 200px;
-      max-width: 320px;
+      flex: 1 1 360px;
+      min-width: 240px;
+      max-width: 420px;
     }
 
     .search-bar input {
       width: 100%;
       border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 14px;
-      padding: 10px 14px;
+      border-radius: 18px;
+      padding: 12px 16px;
       background: rgba(255, 255, 255, 0.06);
       color: var(--text);
       outline: none;
       transition: border-color 150ms ease, transform 150ms ease;
-      font-size: 0.88rem;
     }
 
     .search-bar input:focus {
@@ -1282,16 +1278,15 @@
 
     @media (max-width: 640px) {
       nav {
-        flex-wrap: wrap;
-        align-items: center;
+        flex-direction: column;
+        align-items: flex-start;
       }
       .nav-links {
         width: 100%;
-        justify-content: flex-start;
-        overflow-x: auto;
+        justify-content: stretch;
       }
       .nav-links button {
-        flex: 0 0 auto;
+        flex: 1;
       }
     }
   </style>
@@ -1634,10 +1629,8 @@
     </div>
   </footer>
 
-  <script>
-    const apiBase = window.location.protocol === 'file:'
-      ? 'http://localhost:10004'
-      : 'https://siddharth-dev-project.onrender.com';
+  <script type="module">
+    const apiBase = 'https://siddharth-dev-backend.onrender.com';
     const currentUserKey = 'swapify-current-user';
     const searchInput = document.getElementById('searchInput');
     const itemFeed = document.getElementById('itemFeed');
@@ -1745,45 +1738,48 @@
     async function apiFetch(path, options = {}) {
       let response;
       try {
-        response = await fetch(`${apiBase}${path}`, {
+        const formattedPath = path.startsWith('/api') ? path : `/api${path}`;
+        const cleanBase = (typeof apiBase !== 'undefined' ? apiBase : '').replace(/\/+$/, '');
+
+        response = await fetch(`${cleanBase}${formattedPath}`, {
+          method: options.method || 'GET',
           headers: {
             'Content-Type': 'application/json',
-            ...options.headers
+            ...(options.headers || {})
           },
           ...options
         });
-      } catch (networkError) {
-        console.error(`Network/CORS error calling ${path}:`, networkError);
-        throw new Error(
-          `Could not reach the Swapify server at ${apiBase}. This usually means the server is asleep (Render's free tier can take up to a minute to wake on the first request), the URL is wrong, or the backend is not sending CORS headers for this site's origin.`
-        );
-      }
 
-      const contentType = response.headers.get('content-type') || '';
-      const isJson = contentType.includes('application/json');
-      const rawBody = await response.text();
-      let parsedBody = null;
-      if (isJson && rawBody) {
-        try {
-          parsedBody = JSON.parse(rawBody);
-        } catch (parseError) {
-          console.error(`Response from ${path} claimed to be JSON but failed to parse:`, rawBody.slice(0, 300));
+        const contentType = response.headers.get('content-type') || '';
+        const isJson = contentType.includes('application/json');
+        const rawBody = await response.text();
+        let parsedBody = null;
+
+        if (isJson && rawBody) {
+          try {
+            parsedBody = JSON.parse(rawBody);
+          } catch (parseError) {
+            console.error(`Response from ${path} claimed to be JSON but failed to parse:`, rawBody.slice(0, 300));
+          }
         }
-      }
 
-      if (!response.ok) {
-        const message = (parsedBody && (parsedBody.error || parsedBody.message)) || (rawBody && rawBody.slice(0, 300)) || response.statusText || `Request failed with status ${response.status}`;
-        throw new Error(`(${response.status}) ${message}`);
-      }
+        if (!response.ok) {
+          const message = (parsedBody && (parsedBody.error || parsedBody.message)) || (rawBody && rawBody.slice(0, 300)) || response.statusText || `Request failed with status ${response.status}`;
+          throw new Error(`(${response.status}) ${message}`);
+        }
 
-      if (!isJson || parsedBody === null) {
-        console.error(`Expected JSON from ${path} but got content-type "${contentType}". Response started with:`, rawBody.slice(0, 300));
-        throw new Error(
-          `The server did not return JSON for "${path}" (got "${contentType || 'unknown content type'}" instead). This usually means that route is not implemented on the backend, or the backend is serving the frontend page instead of an API response for this request.`
-        );
-      }
+        if (!isJson || parsedBody === null) {
+          console.error(`Expected JSON from ${path} but got content-type "${contentType}". Response started with:`, rawBody.slice(0, 300));
+          throw new Error(
+            `The server did not return JSON for "${path}" (got "${contentType || 'unknown content type'}" instead). This usually means that route is not implemented on the backend, or the backend is serving the frontend page instead of an API response for this request.`
+          );
+        }
 
-      return parsedBody;
+        return parsedBody;
+      } catch (error) {
+        console.error('API Error:', error);
+        throw error;
+      }
     }
 
     async function getItems() {
@@ -1849,13 +1845,6 @@
       return apiFetch('/premium', {
         method: 'POST',
         body: JSON.stringify({ username, premium: isPremium })
-      });
-    }
-
-    async function askSwapifyAi(message) {
-      return apiFetch('/chat', {
-        method: 'POST',
-        body: JSON.stringify({ message })
       });
     }
 
@@ -2706,33 +2695,36 @@
       }
     });
 
-    aiSendButton?.addEventListener('click', async () => {
+    aiSendButton?.addEventListener('click', () => {
       const query = aiInput.value.trim();
       if (!query) return;
-
       aiChat.appendChild(createAiMessage(query, 'user'));
       aiInput.value = '';
-      aiChat.appendChild(createAiMessage('Thinking...', 'bot'));
-      aiChat.scrollTop = aiChat.scrollHeight;
-
-      try {
-        const response = await askSwapifyAi(query);
-        const reply = response.reply || 'Swapify AI could not generate a response right now.';
-        const placeholder = aiChat.querySelector('.ai-chat-message.bot:last-child');
-        if (placeholder) {
-          placeholder.textContent = reply;
+      const normalized = query.toLowerCase();
+      const generatingDescription = normalized.includes('write description') || normalized.includes('generate description') || normalized.includes('create description');
+      let reply = generateSwapifyReply(query);
+      if (generatingDescription) {
+        const itemDetails = {
+          itemName: document.getElementById('itemName')?.value || '',
+          category: document.getElementById('itemCategory')?.value || '',
+          condition: document.getElementById('itemCondition')?.value || '',
+          exchange: document.getElementById('itemExchange')?.value || ''
+        };
+        const generated = generateDescriptionFromAI(itemDetails);
+        if (!hasPremiumAccess() && includesExpensiveItem(query)) {
+          reply = generateSwapifyReply(query);
         } else {
-          aiChat.appendChild(createAiMessage(reply, 'bot'));
-        }
-      } catch (error) {
-        const placeholder = aiChat.querySelector('.ai-chat-message.bot:last-child');
-        if (placeholder) {
-          placeholder.textContent = error.message || 'Swapify AI is temporarily unavailable.';
-        } else {
-          aiChat.appendChild(createAiMessage(error.message || 'Swapify AI is temporarily unavailable.', 'bot'));
+          reply = generated;
+          if (itemDetails.itemName && itemDetails.category) {
+            const descField = document.getElementById('itemDescription');
+            if (descField) {
+              descField.value = `${itemDetails.itemName} - ${itemDetails.condition}\n\nLooking to trade for: ${itemDetails.exchange}\n\n${generated}`;
+              descField.focus();
+            }
+          }
         }
       }
-
+      aiChat.appendChild(createAiMessage(reply, 'bot'));
       aiChat.scrollTop = aiChat.scrollHeight;
     });
 
@@ -2958,6 +2950,58 @@
       }
       updateAuthUI();
     });
-  </script>
+  
+  const aiChatBox = document.getElementById('aiChatBox');
+  const aiUserInput = document.getElementById('aiUserInput');
+  const aiSendBtn = document.getElementById('aiSendBtn');
+  const backendUrl = 'https://siddharth-dev-backend.onrender.com/api/chat';
+
+  async function sendQueryToSwapifyAI() {
+    const text = aiUserInput.value.trim();
+    if (!text) return;
+
+    appendMessage(text, 'user');
+    aiUserInput.value = '';
+
+    const loadingId = appendMessage('Thinking...', 'bot');
+
+    try {
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: text })
+      });
+
+      const data = await response.json();
+
+      document.getElementById(loadingId).remove();
+      appendMessage(data.reply || "My bad, didn't catch that.", 'bot');
+
+    } catch (error) {
+      console.error('Chat error:', error);
+      document.getElementById(loadingId).remove();
+      appendMessage("Server is waking up or offline. Try again!", 'bot');
+    }
+  }
+
+  function appendMessage(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `ai-chat-message ${sender}`;
+    msgDiv.id = 'msg-' + Math.random().toString(36).substr(2, 9);
+    msgDiv.innerText = text;
+    aiChatBox.appendChild(msgDiv);
+    aiChatBox.scrollTop = aiChatBox.scrollHeight;
+    return msgDiv.id;
+  }
+
+  if (aiSendBtn) {
+    aiSendBtn.addEventListener('click', sendQueryToSwapifyAI);
+    aiUserInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendQueryToSwapifyAI();
+    });
+  }
+  
 </body>
 </html>
