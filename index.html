@@ -2950,6 +2950,58 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       }
       updateAuthUI();
     });
-  </script>
-</body>
+  <script>
+  const aiChatBox = document.getElementById('aiChatBox');
+  const aiUserInput = document.getElementById('aiUserInput');
+  const aiSendBtn = document.getElementById('aiSendBtn');
+  const backendUrl = 'https://siddharth-dev-backend.onrender.com/api/chat';
+
+  async function sendQueryToSwapifyAI() {
+    const text = aiUserInput.value.trim();
+    if (!text) return;
+
+    appendMessage(text, 'user');
+    aiUserInput.value = '';
+
+    const loadingId = appendMessage('Thinking...', 'bot');
+
+    try {
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: text })
+      });
+
+      const data = await response.json();
+
+      document.getElementById(loadingId).remove();
+      appendMessage(data.reply || "My bad, didn't catch that.", 'bot');
+
+    } catch (error) {
+      console.error('Chat error:', error);
+      document.getElementById(loadingId).remove();
+      appendMessage("Server is waking up or offline. Try again!", 'bot');
+    }
+  }
+
+  function appendMessage(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `ai-chat-message ${sender}`;
+    msgDiv.id = 'msg-' + Math.random().toString(36).substr(2, 9);
+    msgDiv.innerText = text;
+    aiChatBox.appendChild(msgDiv);
+    aiChatBox.scrollTop = aiChatBox.scrollHeight;
+    return msgDiv.id;
+  }
+
+  if (aiSendBtn) {
+    aiSendBtn.addEventListener('click', sendQueryToSwapifyAI);
+    aiUserInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendQueryToSwapifyAI();
+    });
+  }
+</script>
+  </body>
 </html>
