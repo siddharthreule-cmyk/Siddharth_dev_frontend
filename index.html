@@ -3046,11 +3046,16 @@ async function openSwapify() {
   try {
     const user = getCurrentUser();
     if (!user) {
+      // Force open the login/auth modal directly by ID or class
+      const authModal = document.getElementById('authModal') || document.getElementById('auth-modal') || document.querySelector('.auth-modal');
+      if (authModal) {
+        authModal.style.display = 'block';
+        authModal.classList.remove('hidden-page');
+      }
+      
+      // Also try calling your original function if it exists
       if (typeof openAuthModal === 'function') {
         openAuthModal();
-      } else {
-        const authModal = document.getElementById('authModal') || document.getElementById('auth-modal');
-        if (authModal) authModal.classList.remove('hidden-page');
       }
     }
     updateAuthUI();
