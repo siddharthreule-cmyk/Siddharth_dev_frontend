@@ -1424,37 +1424,34 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
     </div>
 </section>
 
+  <script>
+  async function openSwapify() {
+  sessionStorage.setItem(enteredAppKey, 'true');
   
-  <div id="authModal" class="auth-modal hidden-page" aria-hidden="true">
-    <div class="auth-card">
-      <div class="auth-header">
-        <div class="auth-tab active" id="signupTab">Sign Up</div>
-        <div class="auth-tab" id="loginTab">Log In</div>
-      </div>
-      <div class="language-selector">
-        <label for="languageSelect">Choose language</label>
-        <select id="languageSelect" class="global-language-select">
-          <option value="en">English</option>
-          <option value="hi">हिन्दी</option>
-          <option value="es">Español</option>
-          <option value="fr">Français</option>
-        </select>
-      </div>
-      <form id="signupForm">
-        <input id="signupEmail" type="email" placeholder="Enter your email" required />
-        <input id="signupPhone" type="text" placeholder="Enter your phone number" required />
-        <input id="signupUsername" type="text" placeholder="Create your username" required />
-        <input id="signupPassword" type="password" placeholder="Create your password" required />
-        <button type="submit" class="auth-submit">Create account</button>
-        <p class="auth-switch">Already have an account? <button type="button" id="switchToLogin">Log In</button></p>
-      </form>
-      <form id="loginForm" class="hidden-page">
-        <input id="loginUsername" type="text" placeholder="Username" required />
-        <input id="loginPassword" type="password" placeholder="Password" required />
-        <button type="submit" class="auth-submit">Log In</button>
-        <p class="auth-switch">No account yet? <button type="button" id="switchToSignup">Sign Up</button></p>
-      </form>
+  const splash = document.getElementById('splash');
+  if (splash) splash.classList.add('hidden-page');
+  if (headerEl) headerEl.classList.remove('hidden-page');
+  if (mainEl) mainEl.classList.remove('hidden-page');
+
+  try {
+    const user = getCurrentUser();
+    if (!user) {
+      // Directly grab your authModal and force it open
+      const authModal = document.getElementById('authModal');
+      if (authModal) {
+        authModal.classList.remove('hidden-page');
+        authModal.setAttribute('aria-hidden', 'false');
+      }
+    }
+    updateAuthUI();
+    await loadItems(searchInput?.value || '');
+  } catch (error) {
+    console.error('Error while opening Swapify:', error);
+  }
+}
+  </script> 
     </div>
+  
   </div>
 
   <header class="hidden-page">
