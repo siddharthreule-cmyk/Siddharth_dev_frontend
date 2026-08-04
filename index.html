@@ -5,15 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Swapify</title>
   <script>
-// At the top of your frontend script (e.g., in index.html)
-
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:4000'
-  : 'https://siddharth-dev-backend.onrender.com'; // Replace with your actual Render backend URL
+  : 'https://siddharth-dev-backend.onrender.com';
   </script>
   <style>
     :root {
-      /* Prehistoric earth palette – warm, readable, general-public friendly */
       --bg: #1c120b;
       --surface: #2a1c12;
       --surface-strong: #3a2818;
@@ -29,16 +26,12 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       --text: #f5f0e6;
       --success: #7a9e5a;
       --warning: #e8b86d;
+      --blood: #a8412e;
       --border: rgba(196, 164, 132, 0.4);
       --shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Georgia, "Times New Roman", "Palatino Linotype", serif;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Georgia, "Times New Roman", "Palatino Linotype", serif; }
 
     body {
       min-height: 100vh;
@@ -51,11 +44,8 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       line-height: 1.6;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
-    /* ========== HEADER / NAV ========== */
     header {
       position: sticky;
       top: 0;
@@ -65,1353 +55,195 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
     }
 
-    nav {
-      width: min(1180px, calc(100% - 36px));
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding: 10px 0;
-    }
+    nav { width: min(1180px, calc(100% - 36px)); margin: 0 auto; display: flex; flex-direction: column; gap: 6px; padding: 10px 0; }
+    .nav-top { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .nav-top::-webkit-scrollbar { display: none; }
+    .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.95rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fire); }
+    .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #f0c060, var(--fire-deep)); box-shadow: 0 0 8px rgba(224, 122, 61, 0.55); }
+    .brand .brand-crown { display: none; color: #e8c060; font-size: 1rem; align-items: center; gap: 6px; }
+    .debug-badge { display: inline-flex; align-items: center; justify-content: center; padding: 3px 9px; border-radius: 4px; background: var(--stone); color: var(--sand); font-size: 0.65rem; letter-spacing: 0.06em; text-transform: uppercase; border: 1px solid var(--clay); }
+    .user-info { color: var(--bone); background: var(--surface-strong); padding: 7px 12px; border-radius: 6px; font-size: 0.85rem; border: 1px solid var(--border); }
+    .logout-btn { border: 1px solid var(--clay); background: var(--surface); color: var(--bone); padding: 7px 12px; border-radius: 6px; cursor: pointer; transition: background 160ms ease, transform 160ms ease; font-size: 0.85rem; font-family: inherit; }
+    .logout-btn:hover { background: var(--stone); transform: translateY(-1px); }
+    .logout-btn.hidden-page { display: none; }
+
+    .auth-modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(12, 8, 4, 0.88); z-index: 3000; padding: 24px; }
+    .auth-card { width: min(520px, 100%); background: var(--surface-strong); border: 2px solid var(--clay); border-radius: 14px; padding: 28px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); display: grid; gap: 18px; }
+    .auth-header { display: flex; gap: 10px; justify-content: center; }
+    .auth-tab { flex: 1; text-align: center; padding: 14px 16px; border-radius: 8px; cursor: pointer; background: var(--surface); color: var(--muted); border: 1px solid var(--border); font-family: inherit; font-weight: 600; }
+    .auth-tab.active { background: linear-gradient(135deg, var(--fire), var(--fire-deep)); color: var(--bone); border-color: var(--fire); }
+    .auth-card input { width: 100%; border: 1px solid var(--clay); background: var(--bg); color: var(--bone); border-radius: 8px; padding: 16px 18px; font-size: 0.95rem; outline: none; font-family: inherit; }
+    .auth-card input:focus { border-color: var(--fire); box-shadow: 0 0 0 2px rgba(224, 122, 61, 0.25); }
+    .auth-card input::placeholder { color: var(--muted); opacity: 0.85; }
+    .auth-submit { border: none; border-radius: 8px; padding: 14px 18px; background: linear-gradient(135deg, var(--fire), var(--fire-deep)); color: var(--bone); font-weight: 700; cursor: pointer; transition: transform 150ms ease, box-shadow 150ms ease; font-family: inherit; font-size: 1rem; width: 100%; }
+    .auth-submit:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(224, 122, 61, 0.4); }
+    .auth-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+    .auth-switch { color: var(--muted); text-align: center; font-size: 0.95rem; }
+    .auth-switch button { border: none; background: none; color: var(--fire); font-weight: 700; cursor: pointer; font-family: inherit; }
+
+    .mini-badge, .crown-badge { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 14px; border-radius: 6px; background: rgba(232, 192, 96, 0.18); color: #e8c060; border: 1px solid rgba(232, 192, 96, 0.4); font-size: 0.9rem; font-weight: 700; }
+    .premium-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
+    .premium-status { font-weight: 700; color: #e8c060; }
+    .premium-status.active { color: var(--success); }
+    .premium-pay-link { display: inline-flex; color: var(--fire); text-decoration: underline; cursor: pointer; font-weight: 700; margin-top: 12px; }
+    .payment-form { margin-top: 18px; display: grid; gap: 14px; background: var(--surface); border: 1px solid var(--clay); border-radius: 10px; padding: 20px; }
+    .payment-form.hidden-page { display: none; }
+    .payment-form fieldset { border: none; padding: 0; display: grid; gap: 12px; }
+    .payment-form label { font-size: 0.95rem; color: var(--muted); }
+    .payment-form input { width: 100%; border: 1px solid var(--clay); background: var(--bg); color: var(--bone); border-radius: 8px; padding: 14px 16px; font-size: 0.95rem; outline: none; font-family: inherit; }
+    .payment-form input:focus { border-color: var(--fire); }
+    .payment-submit { border: none; border-radius: 8px; padding: 14px 18px; background: linear-gradient(135deg, var(--fire), var(--fire-deep)); color: var(--bone); font-weight: 700; cursor: pointer; transition: transform 150ms ease, box-shadow 150ms ease; font-family: inherit; }
+    .payment-submit:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(224, 122, 61, 0.35); }
+    .payment-note { margin-top: 10px; color: var(--muted); font-size: 0.95rem; }
+
+    .admin-user-list { display: grid; gap: 14px; margin-top: 24px; }
+    .admin-user-card { display: grid; gap: 10px; padding: 18px 20px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); }
+    .admin-user-card strong { font-size: 1rem; color: var(--bone); }
+    .admin-user-card span { color: var(--muted); font-size: 0.95rem; }
+    .admin-user-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .admin-user-actions button { border: none; border-radius: 8px; padding: 10px 14px; background: linear-gradient(135deg, #c45c26, #a04820); color: var(--bone); cursor: pointer; transition: transform 150ms ease, box-shadow 150ms ease; font-family: inherit; }
+    .admin-user-actions button:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(196, 92, 38, 0.35); }
+
+    .nav-links { display: flex; gap: 4px; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; scrollbar-width: none; border-top: 1px solid var(--stone); padding-top: 6px; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links button { border: none; background: transparent; color: var(--sand); cursor: pointer; padding: 6px 12px; border-radius: 6px; transition: all 160ms ease; font-size: 0.82rem; white-space: nowrap; flex: 0 0 auto; font-family: inherit; }
+    .nav-links button.active, .nav-links button:hover { color: var(--bone); background: var(--stone); }
+    .profile-nav-pill { border: none; border-radius: 6px; background: linear-gradient(135deg, var(--fire), var(--fire-deep)); color: var(--bone); padding: 7px 14px; font-size: 0.85rem; font-weight: 700; cursor: pointer; box-shadow: 0 6px 14px rgba(224, 122, 61, 0.3); transition: transform 160ms ease, box-shadow 160ms ease; white-space: nowrap; font-family: inherit; }
+    .profile-nav-pill:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(224, 122, 61, 0.4); }
+
+    .hero-actions { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 14px; }
+    .primary-action { border: none; border-radius: 8px; padding: 16px 24px; background: linear-gradient(135deg, var(--fire), var(--fire-deep)); color: var(--bone); font-size: 1rem; cursor: pointer; transition: transform 160ms ease, box-shadow 160ms ease; font-family: inherit; font-weight: 700; }
+    .primary-action:hover { transform: translateY(-2px); box-shadow: 0 14px 28px rgba(224, 122, 61, 0.35); }
+    .search-bar { flex: 1 1 260px; min-width: 180px; max-width: 340px; }
+    .search-bar input { width: 100%; border: 1px solid var(--clay); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; background: var(--surface); color: var(--bone); outline: none; transition: border-color 150ms ease; font-family: inherit; }
+    .search-bar input:focus { border-color: var(--fire); }
+    .search-bar input::placeholder { color: var(--muted); }
+    .language-panel, .language-selector { display: flex; align-items: center; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+    .language-panel select, .language-selector select { border: 1px solid var(--clay); border-radius: 6px; padding: 8px 10px; font-size: 0.82rem; background: var(--surface); color: var(--bone); outline: none; min-width: 110px; font-family: inherit; }
+    .language-selector label, .language-panel label { color: var(--muted); font-size: 0.95rem; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; border: 0; clip: rect(0 0 0 0); overflow: hidden; padding: 0; white-space: nowrap; }
+
+    #splash { min-height: 100vh; display: grid; place-items: center; text-align: center; padding: 24px; }
+    .splash-card { display: grid; gap: 24px; align-items: center; justify-items: center; background: var(--surface-strong); border: 2px solid var(--clay); border-radius: 18px; padding: 48px 42px; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55); max-width: 520px; }
+    .splash-logo { width: 240px; height: 240px; border-radius: 18px; display: grid; place-items: center; background: radial-gradient(circle at 40% 35%, rgba(240, 192, 96, 0.25), transparent 55%), radial-gradient(circle at center, rgba(224, 122, 61, 0.28), transparent 65%), var(--surface); box-shadow: 0 0 0 3px var(--clay), 0 0 0 6px rgba(224, 122, 61, 0.25), 0 0 50px rgba(224, 122, 61, 0.35); cursor: pointer; transition: transform 220ms ease, box-shadow 220ms ease; position: relative; border: none; outline: none; }
+    .splash-logo::after { content: ''; position: absolute; inset: -14px; border-radius: 24px; background: radial-gradient(circle, rgba(224, 122, 61, 0.18), transparent 65%); opacity: 0.9; filter: blur(14px); pointer-events: none; z-index: 0; }
+    .splash-logo img { width: 170px; height: 170px; object-fit: contain; z-index: 2; position: relative; filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.45)); background: transparent; }
+    .splash-logo:hover { transform: scale(1.04); box-shadow: 0 0 0 3px var(--clay), 0 0 0 7px rgba(224, 122, 61, 0.4), 0 0 70px rgba(224, 122, 61, 0.5); }
+    .splash-title { color: var(--bone); font-size: clamp(2.5rem, 4vw, 3.8rem); font-weight: 800; letter-spacing: -0.02em; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
+    .splash-subtitle { color: var(--muted); max-width: 440px; font-size: 1.05rem; line-height: 1.75; }
+    .hidden-page { display: none !important; }
+
+    main { width: min(1180px, calc(100% - 36px)); margin: 32px auto 60px; }
+    .hero { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 32px; align-items: center; margin-bottom: 42px; }
+    .hero-copy { max-width: 620px; }
+    .hero-copy h1, .hero-copy h2 { font-size: clamp(2.3rem, 3.6vw, 3.4rem); line-height: 1.08; letter-spacing: -0.03em; margin-bottom: 16px; color: var(--bone); }
+    .hero-copy p { color: var(--muted); font-size: 1.08rem; line-height: 1.75; margin-bottom: 22px; }
+    .hero-copy .quote { display: inline-flex; align-items: center; gap: 10px; background: rgba(224, 122, 61, 0.14); border: 1px solid rgba(224, 122, 61, 0.35); padding: 16px 18px; border-radius: 10px; color: var(--sand); }
+    .hero-copy .highlight { display: inline-flex; align-items: center; gap: 10px; margin-top: 22px; padding: 14px 18px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); }
+    .hero-copy .highlight strong { color: var(--bone); }
+    .hero-visual { position: relative; border-radius: 16px; overflow: hidden; background: var(--surface); border: 2px solid var(--clay); min-height: 400px; box-shadow: var(--shadow); }
+    .hero-visual::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top left, rgba(224, 122, 61, 0.16), transparent 38%), radial-gradient(circle at bottom right, rgba(107, 142, 78, 0.1), transparent 38%); pointer-events: none; }
+    .dashboard-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 28px; margin-top: 32px; align-items: start; }
+    #post-it, #swapify-ai { background: transparent; }
+    @media (max-width: 980px) { .dashboard-grid { grid-template-columns: 1fr; } }
+    .hero-visual .panel { position: absolute; width: 100%; height: 100%; padding: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; z-index: 1; color: var(--bone); }
+    .card { background: rgba(42, 28, 18, 0.94); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .card h3 { font-size: 1.05rem; color: var(--sand); }
+    .card p { color: var(--muted); line-height: 1.65; font-size: 0.95rem; }
+    .stat { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 16px 18px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); }
+    .stat strong { font-size: 1.45rem; color: var(--fire); }
+    section { margin-top: 18px; scroll-margin-top: 96px; }
+    .section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; gap: 16px; }
+    .section-title h2 { font-size: 1.65rem; letter-spacing: -0.02em; color: var(--bone); }
+    .section-title span { color: var(--muted); }
+    .intro-card { padding: 26px 28px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28); }
+    .intro-card p { color: var(--muted); font-size: 1rem; line-height: 1.75; }
+
+    .post-form { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
+    .category-picker { position: relative; }
+    .category-trigger { width: 100%; border: 1px solid var(--clay); background: var(--bg); color: var(--bone); border-radius: 8px; padding: 16px 18px; outline: none; font-size: 0.97rem; transition: border 150ms ease; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; font-family: inherit; }
+    .category-trigger:focus, .category-trigger:hover { border-color: var(--fire); }
+    .category-trigger .chevron { color: var(--muted); font-size: 0.85rem; }
+    .category-menu { position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 30; display: grid; gap: 4px; padding: 8px; border-radius: 10px; background: var(--surface-strong); border: 1px solid var(--clay); box-shadow: var(--shadow); max-height: 240px; overflow-y: auto; }
+    .other-category-wrap { grid-column: 1 / -1; display: none; gap: 10px; margin-top: -4px; }
+    .other-category-wrap.visible { display: grid; }
+    .other-category-wrap label { color: var(--muted); font-size: 0.95rem; }
+    .category-option { border: none; background: transparent; color: var(--bone); text-align: left; padding: 12px 14px; border-radius: 6px; cursor: pointer; font-size: 0.95rem; font-family: inherit; }
+    .category-option:hover, .category-option.is-selected { background: linear-gradient(135deg, rgba(224, 122, 61, 0.4), rgba(196, 92, 38, 0.35)); color: var(--bone); }
+    .post-form textarea, .post-form input, .post-form select { width: 100%; border: 1px solid var(--clay); background: var(--bg); color: var(--bone); border-radius: 8px; padding: 16px 18px; outline: none; font-size: 0.97rem; transition: border 150ms ease; font-family: inherit; color-scheme: dark; }
+    .post-form input:focus, .post-form textarea:focus, .post-form select:focus { border-color: var(--fire); }
+    .post-form input::placeholder, .post-form textarea::placeholder { color: var(--muted); }
+    .post-form textarea { grid-column: 1 / -1; min-height: 140px; resize: vertical; }
+    .post-form input[type="file"] { grid-column: 1 / -1; width: 100%; border: 1px solid var(--fire); background: linear-gradient(135deg, var(--fire), var(--fire-deep)); color: var(--bone); border-radius: 8px; padding: 12px 14px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 20px rgba(224, 122, 61, 0.3); font-family: inherit; }
+    .post-form input[type="file"]::file-selector-button { border: 1px solid rgba(245, 240, 230, 0.35); background: rgba(245, 240, 230, 0.18); color: var(--bone); border-radius: 6px; padding: 10px 14px; margin-right: 12px; cursor: pointer; font-weight: 700; font-family: inherit; }
+    .file-note { grid-column: 1 / -1; color: var(--muted); font-size: 0.95rem; margin-top: -8px; margin-bottom: 12px; }
+    .media-preview { grid-column: 1 / -1; display: grid; gap: 14px; padding: 16px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); }
+    .preview-panel { display: grid; gap: 10px; align-items: center; padding: 14px; border-radius: 8px; background: var(--bg); border: 1px solid var(--border); }
+    .preview-panel img, .item-image { max-width: 100%; border-radius: 8px; display: block; object-fit: cover; }
+    .item-image { max-height: 280px; margin-bottom: 16px; }
+    .attachment-list { display: inline-flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+    .attachment-badge { padding: 8px 12px; border-radius: 6px; background: rgba(224, 122, 61, 0.18); color: var(--sand); font-size: 0.9rem; border: 1px solid rgba(224, 122, 61, 0.3); }
+
+    .ai-panel { grid-column: 1 / -1; background: var(--surface); border: 1px solid var(--clay); border-radius: 12px; padding: 22px; display: grid; gap: 14px; }
+    .ai-panel h3 { margin: 0; font-size: 1.2rem; color: var(--sand); }
+    .ai-chat { display: grid; gap: 12px; max-height: 300px; overflow-y: auto; padding-right: 4px; }
+    .ai-chat-message { padding: 14px 16px; border-radius: 10px; background: var(--bg); line-height: 1.65; font-size: 0.96rem; }
+    .ai-chat-message.bot { background: rgba(224, 122, 61, 0.14); color: var(--bone); border: 1px solid rgba(224, 122, 61, 0.25); }
+    .ai-chat-message.user { background: var(--surface-strong); color: var(--sand); justify-self: end; border: 1px solid var(--border); }
+    .ai-input-group { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+    .ai-input-group input { border: 1px solid var(--clay); background: var(--bg); color: var(--bone); border-radius: 8px; padding: 16px 18px; min-height: 56px; outline: none; font-size: 1rem; font-family: inherit; }
+    .ai-input-group input::placeholder { color: var(--muted); }
+    .ai-input-group button { border: none; border-radius: 8px; padding: 14px 22px; background: linear-gradient(135deg, var(--fire), var(--fire-deep)); color: var(--bone); cursor: pointer; transition: transform 150ms ease, box-shadow 150ms ease; font-family: inherit; font-weight: 700; }
+    .ai-input-group button:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(224, 122, 61, 0.35); }
+    .post-form button { grid-column: 1 / -1; border: none; border-radius: 8px; padding: 16px 24px; background: linear-gradient(135deg, var(--fire), var(--fire-deep)); color: var(--bone); font-size: 1rem; cursor: pointer; transition: transform 150ms ease, box-shadow 150ms ease; font-family: inherit; font-weight: 700; }
+    .post-form button:hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(224, 122, 61, 0.35); }
+
+    .item-feed { margin-top: 28px; display: grid; gap: 18px; }
+    .item-card { padding: 26px 28px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); display: grid; grid-template-columns: 1fr; gap: 18px; align-items: flex-start; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); }
+    .item-meta { display: grid; gap: 12px; }
+    .item-meta h3 { font-size: 1.3rem; margin-bottom: 4px; color: var(--bone); }
+    .item-meta .badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 6px; background: var(--bg); color: var(--muted); font-size: 0.9rem; border: 1px solid var(--border); }
+    .interest-form, .chat-thread { display: grid; gap: 10px; margin-top: 16px; padding: 14px; border-radius: 10px; background: var(--bg); border: 1px solid var(--border); }
+    .interest-input { width: 100%; min-height: 70px; border: 1px solid var(--clay); border-radius: 8px; background: var(--surface); color: var(--bone); padding: 14px; resize: vertical; outline: none; font-size: 0.95rem; font-family: inherit; }
+    .interest-submit, .interest-cta { width: fit-content; border-radius: 8px; border: none; cursor: pointer; padding: 12px 18px; font-weight: 600; background: linear-gradient(135deg, var(--fire), var(--fire-deep)); color: var(--bone); transition: transform 150ms ease, box-shadow 150ms ease; font-family: inherit; }
+    .interest-submit:hover, .interest-cta:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(224, 122, 61, 0.3); }
+    .chat-thread { background: var(--surface-strong); border: 1px solid var(--clay); }
+    .chat-message { padding: 12px 14px; border-radius: 8px; background: var(--bg); color: var(--bone); line-height: 1.6; }
+    .chat-message strong { display: block; margin-bottom: 6px; font-size: 0.9rem; color: var(--sand); }
+    .chat-thread-empty { padding: 12px 14px; border-radius: 8px; background: var(--bg); color: var(--muted); font-size: 0.95rem; text-align: center; }
+    .review-disabled { padding: 14px 16px; border-radius: 8px; background: rgba(232, 184, 109, 0.14); color: var(--warning); border: 1px solid rgba(232, 184, 109, 0.3); font-size: 0.95rem; line-height: 1.55; }
+    .item-meta .badge span { color: var(--bone); font-weight: 600; }
+    .item-card p { color: var(--muted); line-height: 1.65; }
+    .star-rating { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .star-rating span { cursor: pointer; font-size: 1.45rem; color: rgba(245, 240, 230, 0.28); transition: color 120ms ease; }
+    .star-rating.admin-disabled span { cursor: not-allowed; opacity: 0.7; }
+    .star-rating span.filled { color: #e8c060; }
+    .rating-label { color: var(--muted); font-size: 0.95rem; white-space: nowrap; }
+
+    .highlight-panel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 32px; }
+    .mini-card { padding: 20px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .mini-card strong { display: block; font-size: 1.25rem; margin-bottom: 8px; color: var(--sand); }
+    .developers { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 20px; }
+    .developer-card { padding: 22px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); }
+    .developer-card h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--sand); }
+    .developer-card p { color: var(--muted); line-height: 1.7; }
+    footer { text-align: center; margin: 48px auto 24px; color: var(--muted); font-size: 0.95rem; }
 
-    .nav-top {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-
-    .nav-top::-webkit-scrollbar {
-      display: none;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--fire);
-    }
-
-    .brand .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #f0c060, var(--fire-deep));
-      box-shadow: 0 0 8px rgba(224, 122, 61, 0.55);
-    }
-
-    .brand .brand-crown {
-      display: none;
-      color: #e8c060;
-      font-size: 1rem;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .debug-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 3px 9px;
-      border-radius: 4px;
-      background: var(--stone);
-      color: var(--sand);
-      font-size: 0.65rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      border: 1px solid var(--clay);
-    }
-
-    .user-info {
-      color: var(--bone);
-      background: var(--surface-strong);
-      padding: 7px 12px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      border: 1px solid var(--border);
-    }
-
-    .logout-btn {
-      border: 1px solid var(--clay);
-      background: var(--surface);
-      color: var(--bone);
-      padding: 7px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 160ms ease, transform 160ms ease;
-      font-size: 0.85rem;
-      font-family: inherit;
-    }
-
-    .logout-btn:hover {
-      background: var(--stone);
-      transform: translateY(-1px);
-    }
-
-    .logout-btn.hidden-page {
-      display: none;
-    }
-
-    /* ========== AUTH MODAL – fully visible & readable ========== */
-    .auth-modal {
-      position: fixed;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      background: rgba(12, 8, 4, 0.88);
-      z-index: 3000;
-      padding: 24px;
-    }
-
-    .auth-card {
-      width: min(520px, 100%);
-      background: var(--surface-strong);
-      border: 2px solid var(--clay);
-      border-radius: 14px;
-      padding: 28px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-      display: grid;
-      gap: 18px;
-    }
-
-    .auth-header {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
-
-    .auth-tab {
-      flex: 1;
-      text-align: center;
-      padding: 14px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      background: var(--surface);
-      color: var(--muted);
-      border: 1px solid var(--border);
-      font-family: inherit;
-      font-weight: 600;
-    }
-
-    .auth-tab.active {
-      background: linear-gradient(135deg, var(--fire), var(--fire-deep));
-      color: var(--bone);
-      border-color: var(--fire);
-    }
-
-    .auth-card input {
-      width: 100%;
-      border: 1px solid var(--clay);
-      background: var(--bg);
-      color: var(--bone);
-      border-radius: 8px;
-      padding: 16px 18px;
-      font-size: 0.95rem;
-      outline: none;
-      font-family: inherit;
-    }
-
-    .auth-card input:focus {
-      border-color: var(--fire);
-      box-shadow: 0 0 0 2px rgba(224, 122, 61, 0.25);
-    }
-
-    .auth-card input::placeholder {
-      color: var(--muted);
-      opacity: 0.85;
-    }
-
-    .auth-submit {
-      border: none;
-      border-radius: 8px;
-      padding: 14px 18px;
-      background: linear-gradient(135deg, var(--fire), var(--fire-deep));
-      color: var(--bone);
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 150ms ease, box-shadow 150ms ease;
-      font-family: inherit;
-      font-size: 1rem;
-    }
-
-    .auth-submit:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 24px rgba(224, 122, 61, 0.4);
-    }
-
-    .auth-switch {
-      color: var(--muted);
-      text-align: center;
-      font-size: 0.95rem;
-    }
-
-    .auth-switch button {
-      border: none;
-      background: none;
-      color: var(--fire);
-      font-weight: 700;
-      cursor: pointer;
-      font-family: inherit;
-    }
-
-    .mini-badge,
-    .crown-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 10px;
-      padding: 8px 14px;
-      border-radius: 6px;
-      background: rgba(232, 192, 96, 0.18);
-      color: #e8c060;
-      border: 1px solid rgba(232, 192, 96, 0.4);
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-
-    .premium-controls {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .premium-status {
-      font-weight: 700;
-      color: #e8c060;
-    }
-
-    .premium-status.active {
-      color: var(--success);
-    }
-
-    .premium-pay-link {
-      display: inline-flex;
-      color: var(--fire);
-      text-decoration: underline;
-      cursor: pointer;
-      font-weight: 700;
-      margin-top: 12px;
-    }
-
-    .payment-form {
-      margin-top: 18px;
-      display: grid;
-      gap: 14px;
-      background: var(--surface);
-      border: 1px solid var(--clay);
-      border-radius: 10px;
-      padding: 20px;
-    }
-
-    .payment-form.hidden-page {
-      display: none;
-    }
-
-    .payment-form fieldset {
-      border: none;
-      padding: 0;
-      display: grid;
-      gap: 12px;
-    }
-
-    .payment-form label {
-      font-size: 0.95rem;
-      color: var(--muted);
-    }
-
-    .payment-form input {
-      width: 100%;
-      border: 1px solid var(--clay);
-      background: var(--bg);
-      color: var(--bone);
-      border-radius: 8px;
-      padding: 14px 16px;
-      font-size: 0.95rem;
-      outline: none;
-      font-family: inherit;
-    }
-
-    .payment-form input:focus {
-      border-color: var(--fire);
-    }
-
-    .payment-submit {
-      border: none;
-      border-radius: 8px;
-      padding: 14px 18px;
-      background: linear-gradient(135deg, var(--fire), var(--fire-deep));
-      color: var(--bone);
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 150ms ease, box-shadow 150ms ease;
-      font-family: inherit;
-    }
-
-    .payment-submit:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 22px rgba(224, 122, 61, 0.35);
-    }
-
-    .payment-note {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    /* ========== ADMIN ========== */
-    .admin-user-list {
-      display: grid;
-      gap: 14px;
-      margin-top: 24px;
-    }
-
-    .admin-user-card {
-      display: grid;
-      gap: 10px;
-      padding: 18px 20px;
-      border-radius: 10px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-    }
-
-    .admin-user-card strong {
-      font-size: 1rem;
-      color: var(--bone);
-    }
-
-    .admin-user-card span {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .admin-user-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .admin-user-actions button {
-      border: none;
-      border-radius: 8px;
-      padding: 10px 14px;
-      background: linear-gradient(135deg, #c45c26, #a04820);
-      color: var(--bone);
-      cursor: pointer;
-      transition: transform 150ms ease, box-shadow 150ms ease;
-      font-family: inherit;
-    }
-
-    .admin-user-actions button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 18px rgba(196, 92, 38, 0.35);
-    }
-
-    /* ========== NAV LINKS ========== */
-    .nav-links {
-      display: flex;
-      gap: 4px;
-      flex-wrap: nowrap;
-      justify-content: flex-start;
-      overflow-x: auto;
-      scrollbar-width: none;
-      border-top: 1px solid var(--stone);
-      padding-top: 6px;
-    }
-
-    .nav-links::-webkit-scrollbar {
-      display: none;
-    }
-
-    .nav-links button {
-      border: none;
-      background: transparent;
-      color: var(--sand);
-      cursor: pointer;
-      padding: 6px 12px;
-      border-radius: 6px;
-      transition: all 160ms ease;
-      font-size: 0.82rem;
-      white-space: nowrap;
-      flex: 0 0 auto;
-      font-family: inherit;
-    }
-
-    .nav-links button.active,
-    .nav-links button:hover {
-      color: var(--bone);
-      background: var(--stone);
-    }
-
-    .profile-nav-pill {
-      border: none;
-      border-radius: 6px;
-      background: linear-gradient(135deg, var(--fire), var(--fire-deep));
-      color: var(--bone);
-      padding: 7px 14px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 6px 14px rgba(224, 122, 61, 0.3);
-      transition: transform 160ms ease, box-shadow 160ms ease;
-      white-space: nowrap;
-      font-family: inherit;
-    }
-
-    .profile-nav-pill:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 22px rgba(224, 122, 61, 0.4);
-    }
-
-    /* ========== HERO & ACTIONS ========== */
-    .hero-actions {
-      margin-top: 24px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-    }
-
-    .primary-action {
-      border: none;
-      border-radius: 8px;
-      padding: 16px 24px;
-      background: linear-gradient(135deg, var(--fire), var(--fire-deep));
-      color: var(--bone);
-      font-size: 1rem;
-      cursor: pointer;
-      transition: transform 160ms ease, box-shadow 160ms ease;
-      font-family: inherit;
-      font-weight: 700;
-    }
-
-    .primary-action:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 28px rgba(224, 122, 61, 0.35);
-    }
-
-    .search-bar {
-      flex: 1 1 260px;
-      min-width: 180px;
-      max-width: 340px;
-    }
-
-    .search-bar input {
-      width: 100%;
-      border: 1px solid var(--clay);
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 0.85rem;
-      background: var(--surface);
-      color: var(--bone);
-      outline: none;
-      transition: border-color 150ms ease;
-      font-family: inherit;
-    }
-
-    .search-bar input:focus {
-      border-color: var(--fire);
-    }
-
-    .search-bar input::placeholder {
-      color: var(--muted);
-    }
-
-    .language-panel,
-    .language-selector {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      justify-content: flex-end;
-      flex-wrap: wrap;
-    }
-
-    .language-panel select,
-    .language-selector select {
-      border: 1px solid var(--clay);
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-size: 0.82rem;
-      background: var(--surface);
-      color: var(--bone);
-      outline: none;
-      min-width: 110px;
-      font-family: inherit;
-    }
-
-    .language-selector label,
-    .language-panel label {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .visually-hidden {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      margin: -1px;
-      border: 0;
-      clip: rect(0 0 0 0);
-      overflow: hidden;
-      padding: 0;
-      white-space: nowrap;
-    }
-
-    /* ========== SPLASH – logo fully visible ========== */
-    #splash {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      padding: 24px;
-    }
-
-    .splash-card {
-      display: grid;
-      gap: 24px;
-      align-items: center;
-      justify-items: center;
-      background: var(--surface-strong);
-      border: 2px solid var(--clay);
-      border-radius: 18px;
-      padding: 48px 42px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
-      max-width: 520px;
-    }
-
-    .splash-logo {
-      width: 240px;
-      height: 240px;
-      border-radius: 18px;
-      display: grid;
-      place-items: center;
-      background:
-        radial-gradient(circle at 40% 35%, rgba(240, 192, 96, 0.25), transparent 55%),
-        radial-gradient(circle at center, rgba(224, 122, 61, 0.28), transparent 65%),
-        var(--surface);
-      box-shadow:
-        0 0 0 3px var(--clay),
-        0 0 0 6px rgba(224, 122, 61, 0.25),
-        0 0 50px rgba(224, 122, 61, 0.35);
-      cursor: pointer;
-      transition: transform 220ms ease, box-shadow 220ms ease;
-      position: relative;
-      border: none;
-      outline: none;
-    }
-
-    .splash-logo::after {
-      content: '';
-      position: absolute;
-      inset: -14px;
-      border-radius: 24px;
-      background: radial-gradient(circle, rgba(224, 122, 61, 0.18), transparent 65%);
-      opacity: 0.9;
-      filter: blur(14px);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .splash-logo img {
-      width: 170px;
-      height: 170px;
-      object-fit: contain;
-      z-index: 2;
-      position: relative;
-      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.45));
-      background: transparent;
-    }
-
-    .splash-logo:hover {
-      transform: scale(1.04);
-      box-shadow:
-        0 0 0 3px var(--clay),
-        0 0 0 7px rgba(224, 122, 61, 0.4),
-        0 0 70px rgba(224, 122, 61, 0.5);
-    }
-
-    .splash-title {
-      color: var(--bone);
-      font-size: clamp(2.5rem, 4vw, 3.8rem);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-    }
-
-    .splash-subtitle {
-      color: var(--muted);
-      max-width: 440px;
-      font-size: 1.05rem;
-      line-height: 1.75;
-    }
-
-    .hidden-page {
-      display: none !important;
-    }
-
-    /* ========== MAIN LAYOUT ========== */
-    main {
-      width: min(1180px, calc(100% - 36px));
-      margin: 32px auto 60px;
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 32px;
-      align-items: center;
-      margin-bottom: 42px;
-    }
-
-    .hero-copy {
-      max-width: 620px;
-    }
-
-    .hero-copy h1,
-    .hero-copy h2 {
-      font-size: clamp(2.3rem, 3.6vw, 3.4rem);
-      line-height: 1.08;
-      letter-spacing: -0.03em;
-      margin-bottom: 16px;
-      color: var(--bone);
-    }
-
-    .hero-copy p {
-      color: var(--muted);
-      font-size: 1.08rem;
-      line-height: 1.75;
-      margin-bottom: 22px;
-    }
-
-    .hero-copy .quote {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(224, 122, 61, 0.14);
-      border: 1px solid rgba(224, 122, 61, 0.35);
-      padding: 16px 18px;
-      border-radius: 10px;
-      color: var(--sand);
-    }
-
-    .hero-copy .highlight {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 22px;
-      padding: 14px 18px;
-      border-radius: 8px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-    }
-
-    .hero-copy .highlight strong {
-      color: var(--bone);
-    }
-
-    .hero-visual {
-      position: relative;
-      border-radius: 16px;
-      overflow: hidden;
-      background: var(--surface);
-      border: 2px solid var(--clay);
-      min-height: 400px;
-      box-shadow: var(--shadow);
-    }
-
-    .hero-visual::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at top left, rgba(224, 122, 61, 0.16), transparent 38%),
-        radial-gradient(circle at bottom right, rgba(107, 142, 78, 0.1), transparent 38%);
-      pointer-events: none;
-    }
-
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
-      gap: 28px;
-      margin-top: 32px;
-      align-items: start;
-    }
-
-    #post-it,
-    #swapify-ai {
-      background: transparent;
-    }
-
-    @media (max-width: 980px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .hero-visual .panel {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      padding: 28px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      z-index: 1;
-      color: var(--bone);
-    }
-
-    .card {
-      background: rgba(42, 28, 18, 0.94);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .card h3 {
-      font-size: 1.05rem;
-      color: var(--sand);
-    }
-
-    .card p {
-      color: var(--muted);
-      line-height: 1.65;
-      font-size: 0.95rem;
-    }
-
-    .stat {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 16px 18px;
-      border-radius: 10px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-    }
-
-    .stat strong {
-      font-size: 1.45rem;
-      color: var(--fire);
-    }
-
-    section {
-      margin-top: 18px;
-      scroll-margin-top: 96px;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 18px;
-      gap: 16px;
-    }
-
-    .section-title h2 {
-      font-size: 1.65rem;
-      letter-spacing: -0.02em;
-      color: var(--bone);
-    }
-
-    .section-title span {
-      color: var(--muted);
-    }
-
-    .intro-card {
-      padding: 26px 28px;
-      border-radius: 12px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
-    }
-
-    .intro-card p {
-      color: var(--muted);
-      font-size: 1rem;
-      line-height: 1.75;
-    }
-
-    /* ========== POST FORM ========== */
-    .post-form {
-      display: grid;
-      gap: 18px;
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .category-picker {
-      position: relative;
-    }
-
-    .category-trigger {
-      width: 100%;
-      border: 1px solid var(--clay);
-      background: var(--bg);
-      color: var(--bone);
-      border-radius: 8px;
-      padding: 16px 18px;
-      outline: none;
-      font-size: 0.97rem;
-      transition: border 150ms ease;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      cursor: pointer;
-      font-family: inherit;
-    }
-
-    .category-trigger:focus,
-    .category-trigger:hover {
-      border-color: var(--fire);
-    }
-
-    .category-trigger .chevron {
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-
-    .category-menu {
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 0;
-      right: 0;
-      z-index: 30;
-      display: grid;
-      gap: 4px;
-      padding: 8px;
-      border-radius: 10px;
-      background: var(--surface-strong);
-      border: 1px solid var(--clay);
-      box-shadow: var(--shadow);
-      max-height: 240px;
-      overflow-y: auto;
-    }
-
-    .other-category-wrap {
-      grid-column: 1 / -1;
-      display: none;
-      gap: 10px;
-      margin-top: -4px;
-    }
-
-    .other-category-wrap.visible {
-      display: grid;
-    }
-
-    .other-category-wrap label {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .category-option {
-      border: none;
-      background: transparent;
-      color: var(--bone);
-      text-align: left;
-      padding: 12px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-family: inherit;
-    }
-
-    .category-option:hover,
-    .category-option.is-selected {
-      background: linear-gradient(135deg, rgba(224, 122, 61, 0.4), rgba(196, 92, 38, 0.35));
-      color: var(--bone);
-    }
-
-    .post-form textarea,
-    .post-form input,
-    .post-form select {
-      width: 100%;
-      border: 1px solid var(--clay);
-      background: var(--bg);
-      color: var(--bone);
-      border-radius: 8px;
-      padding: 16px 18px;
-      outline: none;
-      font-size: 0.97rem;
-      transition: border 150ms ease;
-      font-family: inherit;
-      color-scheme: dark;
-    }
-
-    .post-form input:focus,
-    .post-form textarea:focus,
-    .post-form select:focus {
-      border-color: var(--fire);
-    }
-
-    .post-form input::placeholder,
-    .post-form textarea::placeholder {
-      color: var(--muted);
-    }
-
-    .post-form textarea {
-      grid-column: 1 / -1;
-      min-height: 140px;
-      resize: vertical;
-    }
-
-    .post-form input[type="file"] {
-      grid-column: 1 / -1;
-      width: 100%;
-      border: 1px solid var(--fire);
-      background: linear-gradient(135deg, var(--fire), var(--fire-deep));
-      color: var(--bone);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 8px 20px rgba(224, 122, 61, 0.3);
-      font-family: inherit;
-    }
-
-    .post-form input[type="file"]::file-selector-button {
-      border: 1px solid rgba(245, 240, 230, 0.35);
-      background: rgba(245, 240, 230, 0.18);
-      color: var(--bone);
-      border-radius: 6px;
-      padding: 10px 14px;
-      margin-right: 12px;
-      cursor: pointer;
-      font-weight: 700;
-      font-family: inherit;
-    }
-
-    .file-note {
-      grid-column: 1 / -1;
-      color: var(--muted);
-      font-size: 0.95rem;
-      margin-top: -8px;
-      margin-bottom: 12px;
-    }
-
-    .media-preview {
-      grid-column: 1 / -1;
-      display: grid;
-      gap: 14px;
-      padding: 16px;
-      border-radius: 10px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-    }
-
-    .preview-panel {
-      display: grid;
-      gap: 10px;
-      align-items: center;
-      padding: 14px;
-      border-radius: 8px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-    }
-
-    .preview-panel img,
-    .item-image {
-      max-width: 100%;
-      border-radius: 8px;
-      display: block;
-      object-fit: cover;
-    }
-
-    .item-image {
-      max-height: 280px;
-      margin-bottom: 16px;
-    }
-
-    .attachment-list {
-      display: inline-flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 6px;
-    }
-
-    .attachment-badge {
-      padding: 8px 12px;
-      border-radius: 6px;
-      background: rgba(224, 122, 61, 0.18);
-      color: var(--sand);
-      font-size: 0.9rem;
-      border: 1px solid rgba(224, 122, 61, 0.3);
-    }
-
-    /* ========== AI PANEL ========== */
-    .ai-panel {
-      grid-column: 1 / -1;
-      background: var(--surface);
-      border: 1px solid var(--clay);
-      border-radius: 12px;
-      padding: 22px;
-      display: grid;
-      gap: 14px;
-    }
-
-    .ai-panel h3 {
-      margin: 0;
-      font-size: 1.2rem;
-      color: var(--sand);
-    }
-
-    .ai-chat {
-      display: grid;
-      gap: 12px;
-      max-height: 300px;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    .ai-chat-message {
-      padding: 14px 16px;
-      border-radius: 10px;
-      background: var(--bg);
-      line-height: 1.65;
-      font-size: 0.96rem;
-    }
-
-    .ai-chat-message.bot {
-      background: rgba(224, 122, 61, 0.14);
-      color: var(--bone);
-      border: 1px solid rgba(224, 122, 61, 0.25);
-    }
-
-    .ai-chat-message.user {
-      background: var(--surface-strong);
-      color: var(--sand);
-      justify-self: end;
-      border: 1px solid var(--border);
-    }
-
-    .ai-input-group {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .ai-input-group input {
-      border: 1px solid var(--clay);
-      background: var(--bg);
-      color: var(--bone);
-      border-radius: 8px;
-      padding: 16px 18px;
-      min-height: 56px;
-      outline: none;
-      font-size: 1rem;
-      font-family: inherit;
-    }
-
-    .ai-input-group input::placeholder {
-      color: var(--muted);
-    }
-
-    .ai-input-group button {
-      border: none;
-      border-radius: 8px;
-      padding: 14px 22px;
-      background: linear-gradient(135deg, var(--fire), var(--fire-deep));
-      color: var(--bone);
-      cursor: pointer;
-      transition: transform 150ms ease, box-shadow 150ms ease;
-      font-family: inherit;
-      font-weight: 700;
-    }
-
-    .ai-input-group button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 22px rgba(224, 122, 61, 0.35);
-    }
-
-    .post-form button {
-      grid-column: 1 / -1;
-      border: none;
-      border-radius: 8px;
-      padding: 16px 24px;
-      background: linear-gradient(135deg, var(--fire), var(--fire-deep));
-      color: var(--bone);
-      font-size: 1rem;
-      cursor: pointer;
-      transition: transform 150ms ease, box-shadow 150ms ease;
-      font-family: inherit;
-      font-weight: 700;
-    }
-
-    .post-form button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 12px 28px rgba(224, 122, 61, 0.35);
-    }
-
-    /* ========== ITEM FEED ========== */
-    .item-feed {
-      margin-top: 28px;
-      display: grid;
-      gap: 18px;
-    }
-
-    .item-card {
-      padding: 26px 28px;
-      border-radius: 12px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 18px;
-      align-items: flex-start;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-    }
-
-    .item-meta {
-      display: grid;
-      gap: 12px;
-    }
-
-    .item-meta h3 {
-      font-size: 1.3rem;
-      margin-bottom: 4px;
-      color: var(--bone);
-    }
-
-    .item-meta .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
-      border-radius: 6px;
-      background: var(--bg);
-      color: var(--muted);
-      font-size: 0.9rem;
-      border: 1px solid var(--border);
-    }
-
-    .interest-form,
-    .chat-thread {
-      display: grid;
-      gap: 10px;
-      margin-top: 16px;
-      padding: 14px;
-      border-radius: 10px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-    }
-
-    .interest-input {
-      width: 100%;
-      min-height: 70px;
-      border: 1px solid var(--clay);
-      border-radius: 8px;
-      background: var(--surface);
-      color: var(--bone);
-      padding: 14px;
-      resize: vertical;
-      outline: none;
-      font-size: 0.95rem;
-      font-family: inherit;
-    }
-
-    .interest-submit,
-    .interest-cta {
-      width: fit-content;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      padding: 12px 18px;
-      font-weight: 600;
-      background: linear-gradient(135deg, var(--fire), var(--fire-deep));
-      color: var(--bone);
-      transition: transform 150ms ease, box-shadow 150ms ease;
-      font-family: inherit;
-    }
-
-    .interest-submit:hover,
-    .interest-cta:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 22px rgba(224, 122, 61, 0.3);
-    }
-
-    .chat-thread {
-      background: var(--surface-strong);
-      border: 1px solid var(--clay);
-    }
-
-    .chat-message {
-      padding: 12px 14px;
-      border-radius: 8px;
-      background: var(--bg);
-      color: var(--bone);
-      line-height: 1.6;
-    }
-
-    .chat-message strong {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 0.9rem;
-      color: var(--sand);
-    }
-
-    .chat-thread-empty {
-      padding: 12px 14px;
-      border-radius: 8px;
-      background: var(--bg);
-      color: var(--muted);
-      font-size: 0.95rem;
-      text-align: center;
-    }
-
-    .review-disabled {
-      padding: 14px 16px;
-      border-radius: 8px;
-      background: rgba(232, 184, 109, 0.14);
-      color: var(--warning);
-      border: 1px solid rgba(232, 184, 109, 0.3);
-      font-size: 0.95rem;
-      line-height: 1.55;
-    }
-
-    .item-meta .badge span {
-      color: var(--bone);
-      font-weight: 600;
-    }
-
-    .item-card p {
-      color: var(--muted);
-      line-height: 1.65;
-    }
-
-    .star-rating {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-
-    .star-rating span {
-      cursor: pointer;
-      font-size: 1.45rem;
-      color: rgba(245, 240, 230, 0.28);
-      transition: color 120ms ease;
-    }
-
-    .star-rating.admin-disabled span {
-      cursor: not-allowed;
-      opacity: 0.7;
-    }
-
-    .star-rating span.filled {
-      color: #e8c060;
-    }
-
-    .rating-label {
-      color: var(--muted);
-      font-size: 0.95rem;
-      white-space: nowrap;
-    }
-
-    /* ========== HIGHLIGHTS & DEVELOPERS ========== */
-    .highlight-panel {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 18px;
-      margin-top: 32px;
-    }
-
-    .mini-card {
-      padding: 20px;
-      border-radius: 10px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-
-    .mini-card strong {
-      display: block;
-      font-size: 1.25rem;
-      margin-bottom: 8px;
-      color: var(--sand);
-    }
-
-    .developers {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      margin-top: 20px;
-    }
-
-    .developer-card {
-      padding: 22px;
-      border-radius: 10px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-    }
-
-    .developer-card h3 {
-      font-size: 1.1rem;
-      margin-bottom: 8px;
-      color: var(--sand);
-    }
-
-    .developer-card p {
-      color: var(--muted);
-      line-height: 1.7;
-    }
-
-    footer {
-      text-align: center;
-      margin: 48px auto 24px;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    /* ========== RESPONSIVE ========== */
     @media (max-width: 920px) {
-      .hero {
-        grid-template-columns: 1fr;
-      }
-      .hero-visual .panel {
-        grid-template-columns: 1fr;
-      }
-      .highlight-panel,
-      .developers {
-        grid-template-columns: 1fr;
-      }
+      .hero { grid-template-columns: 1fr; }
+      .hero-visual .panel { grid-template-columns: 1fr; }
+      .highlight-panel, .developers { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
-      .nav-top {
-        gap: 8px;
-      }
-      .search-bar {
-        min-width: 140px;
-      }
-      .nav-links button {
-        font-size: 0.75rem;
-        padding: 5px 9px;
-      }
-      .post-form {
-        grid-template-columns: 1fr;
-      }
-      .splash-logo {
-        width: 200px;
-        height: 200px;
-      }
-      .splash-logo img {
-        width: 140px;
-        height: 140px;
-      }
+      .nav-top { gap: 8px; }
+      .search-bar { min-width: 140px; }
+      .nav-links button { font-size: 0.75rem; padding: 5px 9px; }
+      .post-form { grid-template-columns: 1fr; }
+      .splash-logo { width: 200px; height: 200px; }
+      .splash-logo img { width: 140px; height: 140px; }
     }
   </style>
-
 </head>
 <body>
   <section id="splash">
@@ -1447,9 +279,16 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         <button type="submit" class="auth-submit">Create account</button>
         <p class="auth-switch">Already have an account? <button type="button" id="switchToLogin">Log In</button></p>
       </form>
+
+      <!--
+        LOGIN — replaced with email + OTP verification, prehistoric-barter themed.
+        Step 1: email -> Send Code (red "Wrong email" if not a registered account)
+        Step 2: 6-digit code -> Verify (red "Wrong otp" if incorrect)
+        Both checks must pass before the tribe lets you into the trading grounds.
+      -->
       <form id="loginForm" class="hidden-page">
-        <input id="loginUsername" type="text" placeholder="Username" required />
-        <input id="loginPassword" type="password" placeholder="Password" required />
+        <input id="loginUsername" type="text" placeholder="Username" required autocomplete="username" />
+        <input id="loginPassword" type="password" placeholder="Password" required autocomplete="current-password" />
         <button type="submit" class="auth-submit">Log In</button>
         <p class="auth-switch">No account yet? <button type="button" id="switchToSignup">Sign Up</button></p>
       </form>
@@ -1794,63 +633,43 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
 
     const translations = {
       en: {
-        navPostIt: 'Post It',
-        navProfile: 'Profile',
-        navPremium: 'Premium Membership',
-        navDevelopers: 'Meet the Developers',
+        navPostIt: 'Post It', navProfile: 'Profile', navPremium: 'Premium Membership', navDevelopers: 'Meet the Developers',
         heroTitle: 'The next generation of item swapping powered by smart trust and instant community exchange.',
         heroDescription: 'Swapify unites people who want to trade things instead of buying new. Post your item, discover offers, and swap goods directly with trusted members.',
         heroQuote: '"Swap smarter, save resources, and build community — one exchange at a time."',
         heroHighlight: 'Advanced user flow • Real-time posting • Secure trade preview',
-        postSectionTitle: 'Post to Trade',
-        postSectionSubtitle: 'List your item with fast posting tools',
-        premiumTitle: 'Premium Membership',
-        premiumSubtitle: 'Exclusive access for high-value trading',
+        postSectionTitle: 'Post to Trade', postSectionSubtitle: 'List your item with fast posting tools',
+        premiumTitle: 'Premium Membership', premiumSubtitle: 'Exclusive access for high-value trading',
         searchPlaceholder: 'Search items or username...'
       },
       es: {
-        navPostIt: 'Publicar',
-        navProfile: 'Perfil',
-        navPremium: 'Membresía Premium',
-        navDevelopers: 'Desarrolladores',
+        navPostIt: 'Publicar', navProfile: 'Perfil', navPremium: 'Membresía Premium', navDevelopers: 'Desarrolladores',
         heroTitle: 'La próxima generación de intercambio de artículos impulsada por confianza inteligente e intercambio comunitario instantáneo.',
         heroDescription: 'Swapify une a las personas que quieren intercambiar cosas en lugar de comprar nuevas. Publica tu artículo, descubre ofertas y cambia bienes directamente con miembros de confianza.',
         heroQuote: '"Intercambia de manera más inteligente, ahorra recursos y construye comunidad — un intercambio a la vez."',
         heroHighlight: 'Flujo avanzado • Publicación en tiempo real • Vista previa segura',
-        postSectionTitle: 'Publicar para intercambiar',
-        postSectionSubtitle: 'Agrega tu artículo con herramientas rápidas de publicación',
-        premiumTitle: 'Membresía Premium',
-        premiumSubtitle: 'Acceso exclusivo para intercambios de alto valor',
+        postSectionTitle: 'Publicar para intercambiar', postSectionSubtitle: 'Agrega tu artículo con herramientas rápidas de publicación',
+        premiumTitle: 'Membresía Premium', premiumSubtitle: 'Acceso exclusivo para intercambios de alto valor',
         searchPlaceholder: 'Buscar artículos o usuario...'
       },
       hi: {
-        navPostIt: 'पोस्ट करें',
-        navProfile: 'प्रोफ़ाइल',
-        navPremium: 'प्रीमियम सदस्यता',
-        navDevelopers: 'डेवलपर्स',
+        navPostIt: 'पोस्ट करें', navProfile: 'प्रोफ़ाइल', navPremium: 'प्रीमियम सदस्यता', navDevelopers: 'डेवलपर्स',
         heroTitle: 'स्मार्ट ट्रस्ट और त्वरित सामुदायिक विनिमय द्वारा संचालित आइटम स्वैपिंग की अगली पीढ़ी।',
         heroDescription: 'Swapify उन लोगों को जोड़ता है जो नई चीजें खरीदने के बजाय व्यापार करना चाहते हैं। अपना आइटम पोस्ट करें, ऑफ़र खोजें, और विश्वसनीय सदस्यों के साथ सीधे व्यापार करें।',
         heroQuote: '"अधिक समझदारी से स्वैप करें, संसाधनों को बचाएं, और समुदाय बनाएं — एक बार्तालाप में।"',
         heroHighlight: 'उन्नत उपयोगकर्ता प्रवाह • वास्तविक समय पोस्टिंग • सुरक्षित व्यापार पूर्वावलोकन',
-        postSectionTitle: 'व्यापार के लिए पोस्ट करें',
-        postSectionSubtitle: 'तेज़ पोस्टिंग टूल से अपना आइटम सूचीबद्ध करें',
-        premiumTitle: 'प्रीमियम सदस्यता',
-        premiumSubtitle: 'उच्च-मूल्य ट्रेडिंग के लिए विशेष पहुंच',
+        postSectionTitle: 'व्यापार के लिए पोस्ट करें', postSectionSubtitle: 'तेज़ पोस्टिंग टूल से अपना आइटम सूचीबद्ध करें',
+        premiumTitle: 'प्रीमियम सदस्यता', premiumSubtitle: 'उच्च-मूल्य ट्रेडिंग के लिए विशेष पहुंच',
         searchPlaceholder: 'सामान या उपयोगकर्ता नाम खोजें...'
       },
       fr: {
-        navPostIt: 'Publier',
-        navProfile: 'Profil',
-        navPremium: 'Adhésion Premium',
-        navDevelopers: 'Développeurs',
+        navPostIt: 'Publier', navProfile: 'Profil', navPremium: 'Adhésion Premium', navDevelopers: 'Développeurs',
         heroTitle: 'La prochaine génération d\'échange d\'articles alimentée par une confiance intelligente et un échange communautaire instantané.',
         heroDescription: 'Swapify réunit les personnes qui veulent échanger des objets au lieu d\'en acheter de nouveaux. Publiez votre article, découvrez des offres et échangez directement avec des membres de confiance.',
         heroQuote: '"Échangez plus intelligemment, économisez des ressources et construisez une communauté — un échange à la fois."',
         heroHighlight: 'Flux avancé • Publication en temps réel • Aperçu sécurisé',
-        postSectionTitle: 'Publier pour échanger',
-        postSectionSubtitle: 'Listez votre article avec des outils de publication rapides',
-        premiumTitle: 'Adhésion Premium',
-        premiumSubtitle: 'Accès exclusif aux échanges de grande valeur',
+        postSectionTitle: 'Publier pour échanger', postSectionSubtitle: 'Listez votre article avec des outils de publication rapides',
+        premiumTitle: 'Adhésion Premium', premiumSubtitle: 'Accès exclusif aux échanges de grande valeur',
         searchPlaceholder: 'Rechercher des articles ou un utilisateur...'
       }
     };
@@ -1865,41 +684,28 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       try {
         const formattedPath = path.startsWith('/api') ? path : `/api${path}`;
         const cleanBase = (typeof apiBase !== 'undefined' ? apiBase : '').replace(/\/+$/, '');
-
         response = await fetch(`${cleanBase}${formattedPath}`, {
           method: options.method || 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(options.headers || {})
-          },
+          headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
           ...options
         });
-
         const contentType = response.headers.get('content-type') || '';
         const isJson = contentType.includes('application/json');
         const rawBody = await response.text();
         let parsedBody = null;
-
         if (isJson && rawBody) {
-          try {
-            parsedBody = JSON.parse(rawBody);
-          } catch (parseError) {
+          try { parsedBody = JSON.parse(rawBody); } catch (parseError) {
             console.error(`Response from ${path} claimed to be JSON but failed to parse:`, rawBody.slice(0, 300));
           }
         }
-
         if (!response.ok) {
           const message = (parsedBody && (parsedBody.error || parsedBody.message)) || (rawBody && rawBody.slice(0, 300)) || response.statusText || `Request failed with status ${response.status}`;
           throw new Error(`(${response.status}) ${message}`);
         }
-
         if (!isJson || parsedBody === null) {
           console.error(`Expected JSON from ${path} but got content-type "${contentType}". Response started with:`, rawBody.slice(0, 300));
-          throw new Error(
-            `The server did not return JSON for "${path}" (got "${contentType || 'unknown content type'}" instead). This usually means that route is not implemented on the backend, or the backend is serving the frontend page instead of an API response for this request.`
-          );
+          throw new Error(`The server did not return JSON for "${path}" (got "${contentType || 'unknown content type'}" instead). This usually means that route is not implemented on the backend, or the backend is serving the frontend page instead of an API response for this request.`);
         }
-
         return parsedBody;
       } catch (error) {
         console.error('API Error:', error);
@@ -1907,71 +713,21 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       }
     }
 
-    async function getItems() {
-      return apiFetch('/items');
-    }
-
-    async function createItem(item) {
-      return apiFetch('/items', {
-        method: 'POST',
-        body: JSON.stringify(item)
-      });
-    }
-
+    async function getItems() { return apiFetch('/items'); }
+    async function createItem(item) { return apiFetch('/items', { method: 'POST', body: JSON.stringify(item) }); }
     async function submitTradeInterest(listingId, message) {
       return apiFetch(`/items/${encodeURIComponent(listingId)}/interest`, {
         method: 'POST',
-        body: JSON.stringify({
-          message,
-          from: currentUser?.username || 'Guest'
-        })
+        body: JSON.stringify({ message, from: currentUser?.username || 'Guest' })
       });
     }
-
-    async function getAccounts() {
-      return apiFetch('/accounts');
-    }
-
-    async function createAccount(account) {
-      return apiFetch('/accounts', {
-        method: 'POST',
-        body: JSON.stringify(account)
-      });
-    }
-
-    async function loginUser(credentials) {
-      return apiFetch('/login', {
-        method: 'POST',
-        body: JSON.stringify(credentials)
-      });
-    }
-
-    async function updateAccount(username, updatePayload) {
-      return apiFetch(`/accounts/${encodeURIComponent(username)}`, {
-        method: 'PUT',
-        body: JSON.stringify(updatePayload)
-      });
-    }
-
-    async function deleteAccount(username) {
-      return apiFetch(`/accounts/${encodeURIComponent(username)}`, {
-        method: 'DELETE'
-      });
-    }
-
-    async function addReview(listingId, rating, reviewText) {
-      return apiFetch('/review', {
-        method: 'POST',
-        body: JSON.stringify({ listingId, rating, reviewText })
-      });
-    }
-
-    async function setPremium(username, isPremium) {
-      return apiFetch('/premium', {
-        method: 'POST',
-        body: JSON.stringify({ username, premium: isPremium })
-      });
-    }
+    async function getAccounts() { return apiFetch('/accounts'); }
+    async function createAccount(account) { return apiFetch('/accounts', { method: 'POST', body: JSON.stringify(account) }); }
+    async function loginUser(credentials) { return apiFetch('/login', { method: 'POST', body: JSON.stringify(credentials) }); }
+    async function updateAccount(username, updatePayload) { return apiFetch(`/accounts/${encodeURIComponent(username)}`, { method: 'PUT', body: JSON.stringify(updatePayload) }); }
+    async function deleteAccount(username) { return apiFetch(`/accounts/${encodeURIComponent(username)}`, { method: 'DELETE' }); }
+    async function addReview(listingId, rating, reviewText) { return apiFetch('/review', { method: 'POST', body: JSON.stringify({ listingId, rating, reviewText }) }); }
+    async function setPremium(username, isPremium) { return apiFetch('/premium', { method: 'POST', body: JSON.stringify({ username, premium: isPremium }) }); }
 
     function setCurrentUser(user) {
       currentUser = user;
@@ -1980,7 +736,6 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       updateAuthUI();
       updatePremiumUI();
     }
-
     function clearCurrentUser() {
       currentUser = null;
       premiumAccess = false;
@@ -1988,39 +743,24 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       updateAuthUI();
       updatePremiumUI();
     }
-
-    function getCurrentUser() {
-      return currentUser;
-    }
-
-    function hasPremiumAccess() {
-      return (currentUser && (currentUser.premium || currentUser.admin)) || premiumAccess;
-    }
-
-    function isAdminPassword(password) {
-      return String(password).trim() === ADMIN_PASSWORD;
-    }
-
+    function getCurrentUser() { return currentUser; }
+    function hasPremiumAccess() { return (currentUser && (currentUser.premium || currentUser.admin)) || premiumAccess; }
+    function isAdminPassword(password) { return String(password).trim() === ADMIN_PASSWORD; }
     function includesExpensiveItem(text) {
       const normalized = String(text || '').toLowerCase();
       return expensiveTradeItems.some(item => normalized.includes(item));
     }
-
     function createAiMessage(text, sender = 'bot') {
       const message = document.createElement('div');
       message.className = `ai-chat-message ${sender}`;
       message.textContent = text;
       return message;
     }
-
     function updatePreview(target, label, content) {
       if (!target) return;
       target.innerHTML = `<strong>${label}</strong><span>${content}</span>`;
     }
-
-    function generateId() {
-      return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    }
+    function generateId() { return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`; }
 
     function updateStarContainer(container, rating) {
       const stars = container.querySelectorAll('span[data-star]');
@@ -2076,12 +816,10 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
             String(item.description || '').toLowerCase().includes(normalized)
           )
         : items;
-
       if (!filtered || !filtered.length) {
         itemFeed.innerHTML = '<div class="item-card"><div class="item-meta"><h3>No listings found</h3><p>Try another product name or username.</p></div></div>';
         return;
       }
-
       filtered.forEach(item => itemFeed.appendChild(createItemCard(item)));
     }
 
@@ -2103,47 +841,30 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       const isAdminListing = container.dataset.postedByAdmin === 'true';
       const listingId = container.dataset.listingId;
       updateStarContainer(container, Number(container.dataset.rating) || 0);
-
       if (!isAdminListing) {
         const stars = container.querySelectorAll('span[data-star]');
         stars.forEach(star => {
-          star.addEventListener('click', () => {
-            const rating = Number(star.dataset.star);
-            updateStarContainer(container, rating);
-          });
+          star.addEventListener('click', () => updateStarContainer(container, Number(star.dataset.star)));
           star.addEventListener('mouseover', () => {
             const hoverValue = Number(star.dataset.star);
-            const starsHover = container.querySelectorAll('span[data-star]');
-            starsHover.forEach(s => {
-              s.classList.toggle('filled', Number(s.dataset.star) <= hoverValue);
-            });
+            container.querySelectorAll('span[data-star]').forEach(s => s.classList.toggle('filled', Number(s.dataset.star) <= hoverValue));
           });
-          star.addEventListener('mouseout', () => {
-            updateStarContainer(container, Number(container.dataset.rating) || 0);
-          });
+          star.addEventListener('mouseout', () => updateStarContainer(container, Number(container.dataset.rating) || 0));
         });
       }
-
       const reviewForm = card.querySelector('.review-form');
       const reviewList = card.querySelector('.review-list');
       const ratingCount = Number(container.dataset.ratingCount) || 0;
       const ratingValue = Number(container.dataset.rating) || 0;
       renderReviewList(reviewList, listingId, ratingCount, ratingValue, JSON.parse(card.dataset.reviews || '[]'));
-
       if (!isAdminListing && reviewForm) {
         const textarea = reviewForm.querySelector('textarea');
         const submitButton = reviewForm.querySelector('.review-submit');
         submitButton.addEventListener('click', async () => {
           const rating = Number(container.dataset.selectedRating) || Number(container.dataset.rating) || 0;
           const reviewText = textarea.value.trim();
-          if (!rating) {
-            alert('Please select a star rating before submitting your review.');
-            return;
-          }
-          if (!reviewText) {
-            alert('Please write your anonymous review before submitting.');
-            return;
-          }
+          if (!rating) { alert('Please select a star rating before submitting your review.'); return; }
+          if (!reviewText) { alert('Please write your anonymous review before submitting.'); return; }
           try {
             const updatedItem = await addReview(listingId, rating, reviewText);
             container.dataset.ratingCount = updatedItem.ratingCount;
@@ -2151,9 +872,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
             updateStarContainer(container, Number(container.dataset.rating));
             renderReviewList(reviewList, listingId, updatedItem.ratingCount, Number(container.dataset.rating), updatedItem.reviews);
             textarea.value = '';
-          } catch (error) {
-            alert('Unable to submit review. Please try again later.');
-          }
+          } catch (error) { alert('Unable to submit review. Please try again later.'); }
         });
       }
     }
@@ -2175,9 +894,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       `;
     }
 
-    function normalizeUsername(username) {
-      return String(username || '').trim().toLowerCase();
-    }
+    function normalizeUsername(username) { return String(username || '').trim().toLowerCase(); }
 
     function createItemCard(data, options = {}) {
       const { showChats = false } = options;
@@ -2246,41 +963,31 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         const listingId = submitButton.dataset.listingId;
         const textarea = card.querySelector(`.interest-input[data-listing-id="${listingId}"]`);
         const message = textarea ? textarea.value.trim() : '';
-        if (!message) {
-          alert('Please write a message to request this trade.');
-          return;
-        }
+        if (!message) { alert('Please write a message to request this trade.'); return; }
         try {
           await submitTradeInterest(listingId, message);
           if (textarea) textarea.value = '';
           alert('Trade request sent. The seller can review this in their profile chat feed.');
-        } catch (error) {
-          alert('Unable to send trade request: ' + error.message);
-        }
+        } catch (error) { alert('Unable to send trade request: ' + error.message); }
       });
     }
 
     async function fetchLocalAccounts() {
-      try {
-        return await getAccounts();
-      } catch (error) {
-        console.error(error);
-        return [];
-      }
+      try { return await getAccounts(); } catch (error) { console.error(error); return []; }
     }
-
     async function getUserAccount(username) {
       const accounts = await fetchLocalAccounts();
       return accounts.find(acc => String(acc.username || '').trim().toLowerCase() === String(username || '').trim().toLowerCase()) || null;
+    }
+    async function getAccountByEmail(email) {
+      const accounts = await fetchLocalAccounts();
+      return accounts.find(acc => String(acc.email || '').trim().toLowerCase() === String(email || '').trim().toLowerCase()) || null;
     }
 
     async function renderBadUserList() {
       const user = getCurrentUser();
       const badList = document.getElementById('adminBadList');
-      if (!badList || !user || !user.admin) {
-        if (badList) badList.innerHTML = '';
-        return;
-      }
+      if (!badList || !user || !user.admin) { if (badList) badList.innerHTML = ''; return; }
       const items = await getItems();
       const accounts = await fetchLocalAccounts();
       const badUsers = accounts.filter(acc => {
@@ -2297,15 +1004,12 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         const card = document.createElement('div');
         card.className = 'admin-user-card bad-user-card';
         card.style.borderColor = 'rgba(255, 107, 107, 0.3)';
-
         const title = document.createElement('strong');
         title.style.color = '#ff6b6b';
         title.textContent = badUser.username;
-
         const stats = document.createElement('span');
         const itemStats = getUserRatingStats(badUser.username, items);
         stats.textContent = `Email: ${badUser.email || 'N/A'} | Avg Rating: ${itemStats.avgRating}/5 | Bad Critics: ${itemStats.badCritics} | Total Ratings: ${itemStats.totalRatings}`;
-
         const actions = document.createElement('div');
         actions.className = 'admin-user-actions';
         const warningButton = document.createElement('button');
@@ -2314,10 +1018,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         warningButton.textContent = 'Send Warning Notice';
         warningButton.addEventListener('click', () => sendWarningNotice(badUser.username));
         actions.appendChild(warningButton);
-
-        card.appendChild(title);
-        card.appendChild(stats);
-        card.appendChild(actions);
+        card.appendChild(title); card.appendChild(stats); card.appendChild(actions);
         badList.appendChild(card);
       });
     }
@@ -2325,10 +1026,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
     async function renderGoodUserList() {
       const user = getCurrentUser();
       const goodList = document.getElementById('adminGoodList');
-      if (!goodList || !user || !user.admin) {
-        if (goodList) goodList.innerHTML = '';
-        return;
-      }
+      if (!goodList || !user || !user.admin) { if (goodList) goodList.innerHTML = ''; return; }
       const items = await getItems();
       const accounts = await fetchLocalAccounts();
       const goodUsers = accounts.filter(acc => {
@@ -2337,12 +1035,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         return stats.badCritics === 0 && (stats.maxRating === 5 || stats.totalRatings === 0);
       }).map(acc => {
         const stats = getUserRatingStats(acc.username, items);
-        return {
-          username: acc.username,
-          email: acc.email,
-          totalRatings: stats.totalRatings,
-          reason: stats.totalRatings === 0 ? 'New user' : '5-star rating'
-        };
+        return { username: acc.username, email: acc.email, totalRatings: stats.totalRatings, reason: stats.totalRatings === 0 ? 'New user' : '5-star rating' };
       });
       if (!goodUsers.length) {
         goodList.innerHTML = '<div class="admin-user-card"><strong>No users with perfect behavior yet.</strong><span>Users with 0 bad critics or 5-star ratings appear here.</span></div>';
@@ -2353,14 +1046,11 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         const card = document.createElement('div');
         card.className = 'admin-user-card good-user-card';
         card.style.borderColor = 'rgba(98, 214, 167, 0.3)';
-
         const title = document.createElement('strong');
         title.style.color = '#62d6a7';
         title.textContent = goodUser.username + ' ✓';
-
         const stats = document.createElement('span');
         stats.textContent = `Email: ${goodUser.email || 'N/A'} | Status: ${goodUser.reason} | Total Ratings: ${goodUser.totalRatings}`;
-
         const actions = document.createElement('div');
         actions.className = 'admin-user-actions';
         const noticeButton = document.createElement('button');
@@ -2369,20 +1059,14 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         noticeButton.textContent = 'Send Good Behavior Notice';
         noticeButton.addEventListener('click', () => sendGoodBehaviorNotice(goodUser.username));
         actions.appendChild(noticeButton);
-
-        card.appendChild(title);
-        card.appendChild(stats);
-        card.appendChild(actions);
+        card.appendChild(title); card.appendChild(stats); card.appendChild(actions);
         goodList.appendChild(card);
       });
     }
 
     async function sendUserNotice(username, message, type = 'notice') {
       const user = getCurrentUser();
-      if (!user || !user.admin) {
-        alert('Only admins may send notices.');
-        return;
-      }
+      if (!user || !user.admin) { alert('Only admins may send notices.'); return; }
       const noticeArea = document.getElementById('adminNoticeArea');
       if (noticeArea) {
         noticeArea.classList.remove('hidden-page');
@@ -2390,23 +1074,14 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       }
       alert(`${type === 'warning' ? 'Warning notice' : 'Notice'} sent to ${username}`);
     }
-
-    function sendGoodBehaviorNotice(username) {
-      sendUserNotice(username, `Great job, ${username}! Your ratings show strong trust and excellent behavior. Keep it up!`, 'good');
-    }
-
-    function sendWarningNotice(username) {
-      sendUserNotice(username, `Attention ${username}: our review analysis shows room for improvement. Please update your listings to maintain a safe Swapify community.`, 'warning');
-    }
+    function sendGoodBehaviorNotice(username) { sendUserNotice(username, `Great job, ${username}! Your ratings show strong trust and excellent behavior. Keep it up!`, 'good'); }
+    function sendWarningNotice(username) { sendUserNotice(username, `Attention ${username}: our review analysis shows room for improvement. Please update your listings to maintain a safe Swapify community.`, 'warning'); }
 
     async function renderAdminUserList() {
       const user = getCurrentUser();
       const list = document.getElementById('adminUserList');
       if (!list) return;
-      if (!user || !user.admin) {
-        list.innerHTML = '';
-        return;
-      }
+      if (!user || !user.admin) { list.innerHTML = ''; return; }
       const accounts = await fetchLocalAccounts();
       if (!accounts.length) {
         list.innerHTML = '<div class="admin-user-card"><strong>No users found.</strong><span>New accounts will appear here as they register.</span></div>';
@@ -2416,13 +1091,10 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       accounts.forEach(acc => {
         const card = document.createElement('div');
         card.className = 'admin-user-card';
-
         const title = document.createElement('strong');
         title.textContent = acc.username + (acc.admin ? ' 👑 Admin' : '');
-
         const details = document.createElement('span');
         details.textContent = acc.email ? `Email: ${acc.email}` : 'No email available';
-
         const actions = document.createElement('div');
         actions.className = 'admin-user-actions';
         if (String(acc.username).trim().toLowerCase() !== String(user.username).trim().toLowerCase()) {
@@ -2431,42 +1103,25 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
           removeButton.textContent = 'Remove';
           removeButton.addEventListener('click', () => removeUserAccount(acc.username));
           actions.appendChild(removeButton);
-        } else {
-          actions.textContent = 'Current admin account';
-        }
-
-        card.appendChild(title);
-        card.appendChild(details);
-        card.appendChild(actions);
+        } else { actions.textContent = 'Current admin account'; }
+        card.appendChild(title); card.appendChild(details); card.appendChild(actions);
         list.appendChild(card);
       });
     }
 
     async function removeUserAccount(targetUsername = null) {
       const user = getCurrentUser();
-      if (!user || !user.admin) {
-        alert('Only admins may remove users.');
-        return;
-      }
+      if (!user || !user.admin) { alert('Only admins may remove users.'); return; }
       let target = targetUsername;
-      if (!target || !target.trim()) {
-        target = prompt('Enter the username to remove from Swapify:');
-      }
-      if (!target || !target.trim()) {
-        return;
-      }
+      if (!target || !target.trim()) { target = prompt('Enter the username to remove from Swapify:'); }
+      if (!target || !target.trim()) { return; }
       const normalized = target.trim().toLowerCase();
-      if (normalized === String(user.username).trim().toLowerCase()) {
-        alert('Admins cannot remove their own account here.');
-        return;
-      }
+      if (normalized === String(user.username).trim().toLowerCase()) { alert('Admins cannot remove their own account here.'); return; }
       try {
         await deleteAccount(target.trim());
         await renderAdminUserList();
         alert(`User '${target.trim()}' has been removed by admin.`);
-      } catch (error) {
-        alert('Unable to remove user: ' + error.message);
-      }
+      } catch (error) { alert('Unable to remove user: ' + error.message); }
     }
 
     function showAuthForm(mode) {
@@ -2492,13 +1147,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       if (userInfo) {
         userInfo.textContent = currentUser ? `${currentUser.username}${currentUser.admin ? ' 👑 Admin' : currentUser.premium ? ' 👑 Premium' : ''}` : 'Guest';
       }
-      if (logoutBtn) {
-        if (currentUser) {
-          logoutBtn.classList.remove('hidden-page');
-        } else {
-          logoutBtn.classList.add('hidden-page');
-        }
-      }
+      if (logoutBtn) { currentUser ? logoutBtn.classList.remove('hidden-page') : logoutBtn.classList.add('hidden-page'); }
       updatePremiumUI();
     }
 
@@ -2509,7 +1158,6 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       authModal.setAttribute('aria-hidden', 'false');
       showAuthForm('signup');
     }
-
     function closeAuthModal() {
       const authModal = document.getElementById('authModal');
       if (!authModal) return;
@@ -2522,9 +1170,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       const premiumStatus = document.getElementById('premiumStatus');
       const premiumToggleBtn = document.getElementById('premiumToggle');
       const adminPanel = document.getElementById('adminPanel');
-      if (brandCrown) {
-        brandCrown.style.display = (currentUser && (currentUser.premium || currentUser.admin)) ? 'inline-flex' : 'none';
-      }
+      if (brandCrown) brandCrown.style.display = (currentUser && (currentUser.premium || currentUser.admin)) ? 'inline-flex' : 'none';
       if (premiumStatus) {
         premiumStatus.textContent = hasPremiumAccess() ? 'Premium active' : 'Premium inactive';
         premiumStatus.classList.toggle('active', hasPremiumAccess());
@@ -2533,9 +1179,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         premiumToggleBtn.textContent = hasPremiumAccess() ? 'Deactivate Premium' : 'Activate Premium';
         premiumToggleBtn.disabled = currentUser && currentUser.admin;
       }
-      if (adminPanel) {
-        adminPanel.classList.toggle('hidden-page', !(currentUser && currentUser.admin));
-      }
+      if (adminPanel) adminPanel.classList.toggle('hidden-page', !(currentUser && currentUser.admin));
       renderAdminUserList();
       renderBadUserList();
       renderGoodUserList();
@@ -2544,22 +1188,15 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
     async function setPremiumAccess(value) {
       premiumAccess = value;
       if (currentUser) {
-        try {
-          const updated = await setPremium(currentUser.username, value);
-          setCurrentUser(updated);
-        } catch (error) {
-          alert('Unable to update premium status.');
-        }
+        try { const updated = await setPremium(currentUser.username, value); setCurrentUser(updated); }
+        catch (error) { alert('Unable to update premium status.'); }
       }
       updatePremiumUI();
     }
 
     async function changeAdminUsername() {
       const user = getCurrentUser();
-      if (!user || !user.admin) {
-        alert('Only admins can change their username.');
-        return;
-      }
+      if (!user || !user.admin) { alert('Only admins can change their username.'); return; }
       const newName = prompt('Enter the new admin username:');
       if (!newName || !newName.trim()) return;
       const normalized = newName.trim();
@@ -2573,17 +1210,12 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         setCurrentUser(updated);
         updateAuthUI();
         alert('Admin username updated successfully.');
-      } catch (error) {
-        alert('Unable to update username: ' + error.message);
-      }
+      } catch (error) { alert('Unable to update username: ' + error.message); }
     }
 
     async function sendAdminNotice() {
       const user = getCurrentUser();
-      if (!user || !user.admin) {
-        alert('Only admins may send notices.');
-        return;
-      }
+      if (!user || !user.admin) { alert('Only admins may send notices.'); return; }
       const notice = prompt('Enter the community notice message to send:');
       if (!notice || !notice.trim()) return;
       const noticeArea = document.getElementById('adminNoticeArea');
@@ -2603,11 +1235,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
 
     function processPayment(event) {
       event.preventDefault();
-      if (!currentUser) {
-        alert('Please log in or sign up before making a premium payment.');
-        openAuthModal();
-        return;
-      }
+      if (!currentUser) { alert('Please log in or sign up before making a premium payment.'); openAuthModal(); return; }
       const fullName = document.getElementById('paymentFullName').value.trim();
       const country = document.getElementById('paymentCountry').value.trim();
       const state = document.getElementById('paymentState').value.trim();
@@ -2617,24 +1245,11 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       const cardNumber = document.getElementById('paymentCardNumber').value.replace(/\s+/g, '').trim();
       const expiry = document.getElementById('paymentExpiry').value.trim();
       const securityCode = document.getElementById('paymentSecurityCode').value.trim();
-
-      if (!fullName || !country || !state || !district || !address || !zip || !cardNumber || !expiry || !securityCode) {
-        alert('Please fill in all payment fields.');
-        return;
-      }
-      if (cardNumber.length < 12) {
-        alert('Please enter a valid card number.');
-        return;
-      }
-      if (securityCode.length < 3) {
-        alert('Please enter a valid security code.');
-        return;
-      }
+      if (!fullName || !country || !state || !district || !address || !zip || !cardNumber || !expiry || !securityCode) { alert('Please fill in all payment fields.'); return; }
+      if (cardNumber.length < 12) { alert('Please enter a valid card number.'); return; }
+      if (securityCode.length < 3) { alert('Please enter a valid security code.'); return; }
       setPremiumAccess(true);
-      if (paymentForm) {
-        paymentForm.reset();
-        paymentForm.classList.add('hidden-page');
-      }
+      if (paymentForm) { paymentForm.reset(); paymentForm.classList.add('hidden-page'); }
       alert('Premium payment completed. Your premium membership is now active.');
     }
 
@@ -2692,9 +1307,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       if (normalized.includes('what') || normalized.includes('suggest') || normalized.includes('swapify') || normalized.includes('how does')) {
         return 'Swapify is a modern barter marketplace with Home, Post It, Swapify AI, Premium, and Developers sections. I can help with listings, trading advice, membership rules, and item descriptions. Ask me anything.';
       }
-      if (replyOptions.length) {
-        return replyOptions[Math.floor(Math.random() * replyOptions.length)];
-      }
+      if (replyOptions.length) { return replyOptions[Math.floor(Math.random() * replyOptions.length)]; }
       return 'I can help with your Swapify listing, item category, image tips, safety advice, premium membership access, or trade questions. What would you like to know?';
     }
 
@@ -2711,7 +1324,6 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         profileFeed.innerHTML = '<div class="item-card"><div class="item-meta"><h3>Please sign in</h3><p>Only registered users can view their profile posts.</p></div></div>';
         return;
       }
-
       const userPosts = getMyPostedItems(items);
       profileSummary.innerHTML = `
         <div><strong>${currentUser.username}</strong> ${currentUser.admin ? '👑 Admin' : currentUser.premium ? '👑 Premium' : ''}</div>
@@ -2719,21 +1331,17 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         <div style="margin-top: 10px;">You have posted <strong>${userPosts.length}</strong> item${userPosts.length === 1 ? '' : 's'} on Swapify.</div>
         <div style="margin-top: 10px; color: var(--muted);">Your profile displays your listing images and the latest trader messages from interested members.</div>
       `;
-
       if (!userPosts.length) {
         profileFeed.innerHTML = '<div class="item-card"><div class="item-meta"><h3>No posts yet</h3><p>Use the Post It section to add your first listing.</p></div></div>';
         return;
       }
-
       profileFeed.innerHTML = '';
       userPosts.forEach(item => profileFeed.appendChild(createItemCard(item, { showChats: true })));
     }
 
     function generateDescriptionFromAI(itemDetails) {
       const { itemName, category, condition, exchange } = itemDetails;
-      if (!itemName && !category) {
-        return 'Please provide item name and category for a better description.';
-      }
+      if (!itemName && !category) { return 'Please provide item name and category for a better description.'; }
       const categoryTips = {
         'Electronics': 'Mention brand, model, condition, accessories included, and how it works. Buyers love clear tech details.',
         'Books': 'Share title, author, edition, publication year, condition, and whether it has notes or damage.',
@@ -2746,16 +1354,11 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       return `Generated description:\n\nItem: ${itemName || 'Your item'}\nCategory: ${category || 'General'}\nCondition: ${condition || 'Not specified'}\nLooking to trade for: ${exchange || 'Make an offer'}\n\n${tip}\n\nAdd any personal details, why you are trading, and anything extra the new owner should know. Specific listings find better trade partners.`;
     }
 
-    searchInput?.addEventListener('input', () => {
-      loadItems(searchInput.value);
-    });
+    searchInput?.addEventListener('input', () => { loadItems(searchInput.value); });
 
     itemImage?.addEventListener('change', () => {
       const file = itemImage.files[0];
-      if (!file) {
-        updatePreview(imagePreview, 'Image preview', 'No image selected yet.');
-        return;
-      }
+      if (!file) { updatePreview(imagePreview, 'Image preview', 'No image selected yet.'); return; }
       const reader = new FileReader();
       reader.onload = () => {
         imagePreview.innerHTML = `<strong>Image preview</strong><img src="${reader.result}" alt="Item preview" />`;
@@ -2766,10 +1369,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
 
     itemDocument?.addEventListener('change', () => {
       const file = itemDocument.files[0];
-      if (!file) {
-        updatePreview(docPreview, 'Document ready', 'No document selected yet.');
-        return;
-      }
+      if (!file) { updatePreview(docPreview, 'Document ready', 'No document selected yet.'); return; }
       updatePreview(docPreview, 'Document ready', file.name);
       docPreview.dataset.name = file.name;
     });
@@ -2778,9 +1378,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       event.preventDefault();
       const selectedCategory = document.getElementById('itemCategory').value;
       const otherCategoryValue = otherCategoryText?.value.trim() || '';
-      const finalCategory = selectedCategory === 'Other' && otherCategoryValue
-        ? `Other: ${otherCategoryValue}`
-        : selectedCategory;
+      const finalCategory = selectedCategory === 'Other' && otherCategoryValue ? `Other: ${otherCategoryValue}` : selectedCategory;
       const item = {
         id: generateId(),
         name: document.getElementById('itemName').value.trim(),
@@ -2797,11 +1395,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         postedBy: currentUser ? currentUser.username : 'Guest',
         postedByAdmin: currentUser ? currentUser.admin : false
       };
-
-      if (!item.name || !item.category || !item.condition || !item.exchange || !item.description) {
-        alert('Please fill in every field before posting.');
-        return;
-      }
+      if (!item.name || !item.category || !item.condition || !item.exchange || !item.description) { alert('Please fill in every field before posting.'); return; }
       if (!hasPremiumAccess() && includesExpensiveItem(`${item.name} ${item.exchange} ${item.description}`)) {
         alert('Non-members cannot post expensive trades like cars, houses, yachts, jets, boats, diamonds, gold, jewellery, submarines, bunkers, islands, castles, or masterpiece art. Upgrade to Premium to post these listings.');
         return;
@@ -2815,9 +1409,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         updatePreview(imagePreview, 'Image preview', 'No image selected yet.');
         updatePreview(docPreview, 'Document ready', 'No document selected yet.');
         document.getElementById('itemName').focus();
-      } catch (error) {
-        alert('Unable to create listing. ' + error.message);
-      }
+      } catch (error) { alert('Unable to create listing. ' + error.message); }
     });
 
     aiSendButton?.addEventListener('click', () => {
@@ -2825,11 +1417,9 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       if (!query) return;
       aiChat.appendChild(createAiMessage(query, 'user'));
       aiInput.value = '';
-
       const loadingMessage = createAiMessage('Thinking...', 'bot');
       aiChat.appendChild(loadingMessage);
       aiChat.scrollTop = aiChat.scrollHeight;
-
       fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2850,20 +1440,11 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
     });
 
     aiInput?.addEventListener('keypress', event => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        aiSendButton?.click();
-      }
+      if (event.key === 'Enter') { event.preventDefault(); aiSendButton?.click(); }
     });
 
-    if (premiumToggle) {
-      premiumToggle.addEventListener('click', () => setPremiumAccess(!hasPremiumAccess()));
-    }
-    if (itemCategoryTrigger) {
-      itemCategoryTrigger.addEventListener('click', () => {
-        itemCategoryMenu?.classList.toggle('hidden-page');
-      });
-    }
+    if (premiumToggle) { premiumToggle.addEventListener('click', () => setPremiumAccess(!hasPremiumAccess())); }
+    if (itemCategoryTrigger) { itemCategoryTrigger.addEventListener('click', () => { itemCategoryMenu?.classList.toggle('hidden-page'); }); }
 
     document.querySelectorAll('.category-option').forEach(option => {
       option.addEventListener('click', () => {
@@ -2871,46 +1452,28 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         if (!value) return;
         itemCategoryInput.value = value;
         const triggerText = itemCategoryTrigger?.querySelector('span');
-        if (triggerText) {
-          triggerText.textContent = value;
-        }
+        if (triggerText) { triggerText.textContent = value; }
         document.querySelectorAll('.category-option').forEach(btn => btn.classList.remove('is-selected'));
         option.classList.add('is-selected');
         itemCategoryMenu?.classList.add('hidden-page');
-
-        if (value === 'Other') {
-          otherCategoryWrap?.classList.add('visible');
-        } else {
+        if (value === 'Other') { otherCategoryWrap?.classList.add('visible'); }
+        else {
           otherCategoryWrap?.classList.remove('visible');
-          if (otherCategoryText) {
-            otherCategoryText.value = '';
-          }
+          if (otherCategoryText) { otherCategoryText.value = ''; }
         }
       });
     });
 
     document.addEventListener('click', event => {
       if (!itemCategoryMenu || !itemCategoryTrigger) return;
-      if (!itemCategoryMenu.contains(event.target) && !itemCategoryTrigger.contains(event.target)) {
-        itemCategoryMenu.classList.add('hidden-page');
-      }
+      if (!itemCategoryMenu.contains(event.target) && !itemCategoryTrigger.contains(event.target)) { itemCategoryMenu.classList.add('hidden-page'); }
     });
 
-    if (openPaymentLink) {
-      openPaymentLink.addEventListener('click', showPaymentForm);
-    }
-    if (paymentForm) {
-      paymentForm.addEventListener('submit', processPayment);
-    }
-    if (changeUsernameBtn) {
-      changeUsernameBtn.addEventListener('click', changeAdminUsername);
-    }
-    if (sendNoticeBtn) {
-      sendNoticeBtn.addEventListener('click', sendAdminNotice);
-    }
-    if (removeUserBtn) {
-      removeUserBtn.addEventListener('click', () => removeUserAccount());
-    }
+    if (openPaymentLink) { openPaymentLink.addEventListener('click', showPaymentForm); }
+    if (paymentForm) { paymentForm.addEventListener('submit', processPayment); }
+    if (changeUsernameBtn) { changeUsernameBtn.addEventListener('click', changeAdminUsername); }
+    if (sendNoticeBtn) { sendNoticeBtn.addEventListener('click', sendAdminNotice); }
+    if (removeUserBtn) { removeUserBtn.addEventListener('click', () => removeUserAccount()); }
 
     logoutBtn?.addEventListener('click', () => {
       const shouldLogout = confirm('Are you sure you want to log out of Swapify?');
@@ -2929,29 +1492,13 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       const phone = document.getElementById('signupPhone').value.trim();
       const username = document.getElementById('signupUsername').value.trim();
       const password = document.getElementById('signupPassword').value;
-      if (!email || !phone || !username || !password) {
-        alert('Please fill out every field to create an account.');
-        return;
-      }
+      if (!email || !phone || !username || !password) { alert('Please fill out every field to create an account.'); return; }
       const existing = await getUserAccount(username);
-      if (existing) {
-        alert('This username already exists. Please log in or choose another username.');
-        return;
-      }
+      if (existing) { alert('This username already exists. Please log in or choose another username.'); return; }
       try {
-        const newUser = await createAccount({
-          email,
-          phone,
-          username,
-          password,
-          premium: isAdminPassword(password),
-          admin: isAdminPassword(password)
-        });
+        const newUser = await createAccount({ email, phone, username, password, premium: isAdminPassword(password), admin: isAdminPassword(password) });
         authenticateUser(newUser);
-      } catch (error) {
-        console.error('Signup failed:', error);
-        alert('Unable to create an account: ' + error.message);
-      }
+      } catch (error) { console.error('Signup failed:', error); alert('Unable to create an account: ' + error.message); }
     });
 
     loginForm?.addEventListener('submit', async event => {
@@ -2979,6 +1526,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       if (!user) return;
       user.admin = isAdminPassword(user.password) || user.admin;
       user.premium = user.premium || user.admin;
+
       setCurrentUser(user);
       sessionStorage.setItem(enteredAppKey, 'true');
       closeAuthModal();
@@ -2995,44 +1543,26 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       mainEl.classList.remove('hidden-page');
       try {
         const user = getCurrentUser();
-        if (!user) {
-          openAuthModal();
-        }
+        if (!user) { openAuthModal(); }
         updateAuthUI();
         await loadItems(searchInput?.value || '');
-      } catch (error) {
-        console.error('Error while opening Swapify:', error);
-      }
+      } catch (error) { console.error('Error while opening Swapify:', error); }
     }
 
-    async function enterSwapifyApp() {
-      await openSwapify();
-    }
+    async function enterSwapifyApp() { await openSwapify(); }
 
     document.querySelectorAll('.nav-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const url = btn.dataset.url;
-        if (url && url.startsWith('#')) {
-          document.querySelector(url)?.scrollIntoView({ behavior: 'smooth' });
-        } else if (url && url.endsWith('.html')) {
-          window.location.href = url;
-        } else if (url) {
-          window.open(url, '_blank', 'noopener');
-        }
+        if (url && url.startsWith('#')) { document.querySelector(url)?.scrollIntoView({ behavior: 'smooth' }); }
+        else if (url && url.endsWith('.html')) { window.location.href = url; }
+        else if (url) { window.open(url, '_blank', 'noopener'); }
       });
     });
 
-    document.getElementById('profileNavButton')?.addEventListener('click', () => {
-      window.location.href = 'profile.html';
-    });
-
-    document.getElementById('openProfileBtn')?.addEventListener('click', () => {
-      document.querySelector('#profile')?.scrollIntoView({ behavior: 'smooth' });
-    });
-
-    document.querySelectorAll('.global-language-select').forEach(select => {
-      select.addEventListener('change', () => applyLanguage(select.value));
-    });
+    document.getElementById('profileNavButton')?.addEventListener('click', () => { window.location.href = 'profile.html'; });
+    document.getElementById('openProfileBtn')?.addEventListener('click', () => { document.querySelector('#profile')?.scrollIntoView({ behavior: 'smooth' }); });
+    document.querySelectorAll('.global-language-select').forEach(select => { select.addEventListener('change', () => applyLanguage(select.value)); });
 
     document.getElementById('switchToLogin')?.addEventListener('click', () => showAuthForm('login'));
     document.getElementById('switchToSignup')?.addEventListener('click', () => showAuthForm('signup'));
@@ -3046,15 +1576,10 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
         const key = el.dataset.i18n;
         const value = translations[selected][key];
         if (!value) return;
-        if ((el.tagName.toLowerCase() === 'input' || el.tagName.toLowerCase() === 'textarea') && el.placeholder !== undefined) {
-          el.placeholder = value;
-        } else {
-          el.textContent = value;
-        }
+        if ((el.tagName.toLowerCase() === 'input' || el.tagName.toLowerCase() === 'textarea') && el.placeholder !== undefined) { el.placeholder = value; }
+        else { el.textContent = value; }
       });
-      document.querySelectorAll('.global-language-select').forEach(select => {
-        select.value = selected;
-      });
+      document.querySelectorAll('.global-language-select').forEach(select => { select.value = selected; });
     }
 
     window.addEventListener('load', async () => {
