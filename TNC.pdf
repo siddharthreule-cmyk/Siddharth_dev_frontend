@@ -1,0 +1,145 @@
+import os
+from weasyprint import HTML
+
+html_content = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Swapify Comprehensive Terms and Conditions</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm 15mm;
+      background-color: #faf8f5;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: #2c3e50;
+      background-color: #faf8f5;
+      font-size: 10.5pt;
+      line-height: 1.6;
+    }
+    .header-banner {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 25px 20px;
+      margin: -20mm -15mm 25px -15mm;
+      border-bottom: 4px solid #ffd166;
+    }
+    .header-banner h1 {
+      margin: 0 0 8px 0;
+      font-size: 22pt;
+      color: #ffd166;
+      letter-spacing: 0.5px;
+    }
+    .header-banner p {
+      margin: 0;
+      color: #aab4cb;
+      font-size: 10pt;
+    }
+    .intro {
+      font-size: 11pt;
+      color: #334155;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .section-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-left: 4px solid #4f8cff;
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      page-break-inside: avoid;
+    }
+    h2 {
+      font-size: 12pt;
+      margin: 0 0 6px 0;
+      color: #0f172a;
+    }
+    p {
+      margin: 0;
+      color: #475569;
+    }
+    ul {
+      margin: 6px 0 0 0;
+      padding-left: 20px;
+      color: #475569;
+    }
+    li {
+      margin-bottom: 4px;
+    }
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 9pt;
+      color: #94a3b8;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-banner">
+    <h1>Swapify Terms & Conditions</h1>
+    <p>Comprehensive Barter Marketplace & Community Guidelines</p>
+  </div>
+
+  <div class="intro">
+    These terms govern your use of Swapify’s barter marketplace, premium membership, and community features. By continuing to use the platform, you agree to the rules and guidelines outlined below.
+  </div>
+
+  <div class="section-card">
+    <h2>1. Acceptable Use</h2>
+    <p>You must use Swapify honestly, respectfully, and safely. Harassment, fraud, false listings, or impersonation is strictly prohibited across all community channels.</p>
+  </div>
+
+  <div class="section-card">
+    <h2>2. Listings and Trades</h2>
+    <p>All listings must be accurate and clearly described. Users are fully responsible for the quality, condition, safety, and details of the items they post for barter trade.</p>
+  </div>
+
+  <div class="section-card">
+    <h2>3. Premium Membership</h2>
+    <p>Premium membership unlocks access to high-value trading features and priority placement. Premium users must follow the same community rules and may be subject to additional reviews for high-value listings.</p>
+  </div>
+
+  <div class="section-card">
+    <h2>4. Safety and Trust</h2>
+    <p>Swapify encourages safe exchanges and good faith communication. Please verify trading partners, avoid suspicious requests, and report misconduct promptly to platform moderators.</p>
+  </div>
+
+  <div class="section-card">
+    <h2>5. Privacy and Content</h2>
+    <p>By posting images, documents, or descriptions, you confirm you have permission to share that content and that it does not violate any laws or third-party rights.</p>
+  </div>
+
+  <div class="section-card" style="border-left-color: #ffd166;">
+    <h2>6. Community Enforcement</h2>
+    <ul>
+      <li>Repeated bad behavior may lead to formal warnings or permanent account restriction.</li>
+      <li>Admins reserve the right to remove harmful, fraudulent, or misleading content immediately.</li>
+      <li>Users are expected to maintain respectful communication during all barter negotiations.</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    &copy; 2026 Swapify Platform. All rights reserved. Official Terms & Conditions Document.
+  </div>
+</body>
+</html>
+"""
+
+html_path = "terms_temp.html"
+pdf_path = "Swapify_Comprehensive_Terms_and_Conditions.pdf"
+
+with open(html_path, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+HTML(filename=html_path).write_pdf(pdf_path)
+print("PDF generated successfully.")
