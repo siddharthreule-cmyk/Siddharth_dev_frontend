@@ -1420,7 +1420,7 @@ const API_BASE_URL = window.location.hostname === 'localhost' || window.location
       const loadingMessage = createAiMessage('Thinking...', 'bot');
       aiChat.appendChild(loadingMessage);
       aiChat.scrollTop = aiChat.scrollHeight;
-      fetch(`${API_BASE_URL}/api/chat`, {
+      fetch(`${SWAPIFY_LLM_API_KEY}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: query })
